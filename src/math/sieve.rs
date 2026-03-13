@@ -8,18 +8,16 @@ pub struct Sieve {
 impl Sieve {
     pub fn new(maxn: NonZeroUsize) -> Self {
         let n: usize = maxn.get();
+        let rn: usize = (n as f64).sqrt() as usize;
         let mut is_prime = vec![true; n + 1];
         is_prime[..2].fill(false);
 
-        for i in 2..=n {
-            if i * i > n {
-                break
-            }
+        for i in 2..=rn {
             if !is_prime[i] {
                 continue
             }
-            for j in (i*i..=n).step_by(i) {
-                is_prime[j] = false
+            for j in is_prime.iter_mut().skip(i * i).step_by(i) {
+                *j = false;
             }
         }
         Sieve { 
