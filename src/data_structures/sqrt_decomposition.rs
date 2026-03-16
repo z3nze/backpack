@@ -142,5 +142,6 @@ mod tests {
 
         sd.add(99, 99, 100);
         assert!(sd.get(99) == 7);
+        assert!(sd.sum(99, 99) == 7);
     }
 }
