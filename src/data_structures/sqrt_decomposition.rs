@@ -139,5 +139,8 @@ mod tests {
         assert!(sd.get(39) == -91);
         assert!(sd.get(0) == -98);
         assert!(sd.sum(35, 99) == (49 - 35 + 1) * 2 + (99 - 39 + 1) * 7 + (99 - 35 + 1) * -100);
+
+        sd.add(99, 99, 100);
+        assert!(sd.get(99) == 7);
     }
 }
