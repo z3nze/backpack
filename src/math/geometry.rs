@@ -1,18 +1,15 @@
-use std::num::NonZeroUsize;
-
 pub struct Triangle {
     sides: [u64; 3],
 }
 
 impl Triangle {
-    pub fn new(a: NonZeroUsize, b: NonZeroUsize, c: NonZeroUsize) -> Self {
+    pub fn new(a: u64, b: u64, c: u64) -> Self {
         let mut sides = [a, b, c];
         sides.sort();
-        let sides = sides.map(|x| x.get() as u64);
         Triangle { sides }
     }
 
-    pub fn area(&self) -> f64 {
+    pub fn area_heron(&self) -> f64 {
         let s: f64 = self.sides.iter().map(|&x| x as f64).sum::<f64>() / 2.0;
         (self.sides.iter().map(|&x| s - x as f64).product::<f64>() * s).sqrt()
     }

@@ -5,14 +5,14 @@ use backpack::math::geometry::Triangle;
 fn main() {
     let mut base = 4;
     let mut res = 0;
-    let lim: usize = 1e9 as usize;
+    let lim: u64 = 1e9 as u64;
     loop {
-        let lside = NonZeroUsize::new(base - 1).unwrap();
-        let gside = NonZeroUsize::new(base + 1).unwrap();
-        let c1 = Triangle::new(lside, lside, NonZeroUsize::new(base).unwrap());
-        let c2 = Triangle::new(gside, gside, NonZeroUsize::new(base).unwrap());
-        let p1 = lside.get() * 2 + base;
-        let p2 = gside.get() * 2 + base;
+        let lside =  base - 1;
+        let gside = base + 1;
+        let c1 = Triangle::new(lside, lside, base);
+        let c2 = Triangle::new(gside, gside, base);
+        let p1 = lside * 2 + base;
+        let p2 = gside * 2 + base;
 
         if p1 <= lim && c1.is_almost_equlateral() {
             res += p1;
@@ -25,7 +25,7 @@ fn main() {
             break;
         }
 
-        base += 2;
+        base += 1;
     }
     println!("{res}");
 }
