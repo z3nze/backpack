@@ -1,5 +1,3 @@
-use std::num::NonZeroUsize;
-
 use backpack::math::geometry::Triangle;
 
 fn main() {

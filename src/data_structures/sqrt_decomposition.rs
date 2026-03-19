@@ -131,7 +131,7 @@ mod tests {
         assert!(sd.get(20) == 2);
         assert!(sd.get(45) == 9);
         assert!(sd.get(80) == 7);
-        assert!(sd.sum(0, 70) == (49 - 0 + 1) * 2 + (70 - 39 + 1) * 7);
+        assert!(sd.sum(0, 70) == 324); // (49 - 0 + 1) * 2 + (70 - 39 + 1) * 7)
 
         sd.add(0, 99, -100);
 

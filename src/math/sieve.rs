@@ -1,7 +1,4 @@
-use std::num::NonZeroUsize;
-
 pub struct Sieve {
-    maxn: usize,
     is_prime: Vec<bool>,
 }
 
@@ -20,7 +17,6 @@ impl Sieve {
             }
         }
         Sieve { 
-            maxn, 
             is_prime
         }
     }
