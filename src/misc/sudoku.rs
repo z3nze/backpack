@@ -7,31 +7,17 @@ pub struct SudokuGame {
 
 impl SudokuGame {
     fn get_rows() -> Vec<Vec<(usize, usize)>> {
-        (0..9)
-            .flat_map(|i| std::iter::repeat_n(i, 9))
-            .zip((0..9).cycle())
-            .collect::<Vec<_>>()
-            .chunks_exact(9)
-            .map(|c| c.to_vec())
-            .collect()
+        (0..9).map(|r| (0..9).map(|c| (r,c)).collect()).collect()
     }
 
     fn get_columns() -> Vec<Vec<(usize, usize)>> {
-        (0..9).cycle()
-            .zip((0..9).flat_map(|i| std::iter::repeat_n(i, 9)))
-            .collect::<Vec<_>>()
-            .chunks_exact(9)
-            .map(|c| c.to_vec())
-            .collect()
+        (0..9).map(|c| (0..9).map(|r| (r,c)).collect()).collect()
     }
 
     fn get_squares() -> Vec<Vec<(usize, usize)>> {
-        (0..9)
-            .map(|i| (i / 3 * 3, (i % 3) * 3))
-            .flat_map(|(r, c)| (0..9).map(move |i| (r + (i / 3 % 3), c + i % 3)))
-            .collect::<Vec<_>>()
-            .chunks_exact(9)
-            .map(|c| c.to_vec())
+        (0..3)
+            .flat_map(|r| (0..3).map(move |c| (r, c)))
+            .map(|(br, bc)| (0..3).flat_map(|ir| (0..3).map(move |ic| (br * 3 + ir, bc * 3 + ic))).collect())
             .collect()
     }
 
