@@ -1,22 +1,16 @@
-use backpack::misc::sudoku::SudokuGame;
+use backpack::misc::anagramic_squares::AnagramicSquares;
 
 fn main() {
-    let mut ans: u32 = 0;
-    for _ in 0..50 {
-        let mut buf = String::new();
-        std::io::stdin().read_line(&mut buf).expect("failed");
+    let mut buf = String::new();
+    std::io::stdin().read_line(&mut buf).expect("fail");
 
-        let mut f: Vec<String> = vec![String::new(); 9];
-        for row in f.iter_mut() {
-            std::io::stdin().read_line(row).expect("failed");
-        }
+    let words: Vec<String> = buf
+        .split(',')
+        .map(|x| x.strip_prefix("\"").unwrap().strip_suffix("\"").unwrap().to_string())
+        .collect();
 
-        let mut game = SudokuGame::from_string_vec(f);
+    dbg!(&words);
 
-        let res = game.solve().unwrap();
-
-        ans += res[0].iter().take(3).fold(0, |acc, &x| acc * 10 + x as u32);
-    }
-
-    println!("{ans}");
+    let sol = AnagramicSquares::new(words);
+    sol.solve();
 }
