@@ -1,24 +1,34 @@
-use std::ops::Range;
+use std::{iter::repeat_n, ops::{Add, AddAssign, Div, Mul, Range, Sub}};
 
-pub struct SqrtDecomposition {
+pub struct SqrtDecomposition<T> {
     bin_size: usize,
     _bin_count: usize,
-    values: Vec<i64>,
-    inc: Vec<i64>,
-    sum: Vec<i64>,
+    values: Vec<T>,
+    sum: Vec<T>,
 }
 
-impl SqrtDecomposition {
-    pub fn new(n: usize) -> Self {
+impl<T> SqrtDecomposition<T>
+where 
+    T: Default
+        + Clone
+        + Copy
+        + Eq
+        + Add<Output = T>
+        + AddAssign
+        + Sub<Output = T>
+        + Mul<Output = T>
+        + Div<Output = T>
+{
+    pub fn new(n: usize) -> Self
+    {
         let nsqrt = (n as f64).sqrt().max(1.0) as usize;
         let bin_size = nsqrt;
         let bin_count = (n + bin_size - 1).div_ceil(bin_size);
 
-        let sum: Vec<i64> = vec![0; bin_count];
-        let inc: Vec<i64> = vec![0; bin_count];
-        let values: Vec<i64> = vec![0; n];
+        let sum: Vec<T> = vec![T::default(); bin_count];
+        let values: Vec<T> = vec![T::default(); n];
 
-        SqrtDecomposition { bin_size, _bin_count: bin_count, values, inc, sum }
+        SqrtDecomposition { bin_size, _bin_count: bin_count, values, sum }
     }
 
     pub fn block_idx(&self, idx: usize) -> usize {
@@ -29,28 +39,12 @@ impl SqrtDecomposition {
         block_idx * self.bin_size .. (block_idx + 1) * self.bin_size
     }
 
-    pub fn relax_block(&mut self, block_idx: usize) {
-        let dv = self.inc[block_idx];
-        if dv == 0 {
-            return
-        }
-
-        let brange = self.block_range(block_idx);
-        let block = &mut self.values[brange];
-
-        for x in block.iter_mut() {
-            *x += dv;
-        }
-        self.sum[block_idx] += dv * (self.bin_size as i64);
-        self.inc[block_idx] = 0;
-    }
-
-    pub fn add(&mut self, l: usize, r: usize, val: i64) {
+    pub fn add(&mut self, l: usize, r: usize, val: T)
+    where 
+        T: Default
+    {
         let lbidx = self.block_idx(l);
         let rbidx = self.block_idx(r);
-
-        self.relax_block(lbidx);
-        self.relax_block(rbidx);
 
         if lbidx == rbidx {
             for x in &mut self.values[l ..= r] {
@@ -65,8 +59,10 @@ impl SqrtDecomposition {
             self.sum[lbidx] += val;
         }
 
-        for x in &mut self.inc[lbidx + 1 .. rbidx] {
-            *x += val;
+        let dv = repeat_n(val, self.bin_size).fold(T::default(), |acc, x| acc + x);
+
+        for x in &mut self.sum[lbidx + 1 .. rbidx] {
+            *x += dv;
         }
 
         for x in &mut self.values[rbidx * self.bin_size ..= r] {
@@ -75,42 +71,34 @@ impl SqrtDecomposition {
         }
     }
 
-    pub fn sum(&mut self, l: usize, r: usize) -> i64 {
+    pub fn sum(&mut self, l: usize, r: usize) -> T {
         let lbidx = self.block_idx(l);
         let rbidx = self.block_idx(r);
 
-        self.relax_block(lbidx);
-        self.relax_block(rbidx);
-
-        let mut ret: i64 = 0;
+        let mut ret: T = T::default();
 
         if lbidx == rbidx {
-            for x in &self.values[l ..= r] {
+            for &x in &self.values[l ..= r] {
                 ret += x;
             }
             return ret;
         }
 
-        for x in &self.values[l .. (lbidx + 1) * self.bin_size] {
+        for &x in &self.values[l .. (lbidx + 1) * self.bin_size] {
             ret += x;
         }
 
-        let dvs = &self.inc[lbidx + 1 .. rbidx];
-        let sums = &self.sum[lbidx + 1 .. rbidx];
-        for (dv, sum) in dvs.iter().zip(sums.iter()) {
-            ret += dv * self.bin_size as i64 + sum;
-        }
+        ret += self.sum[lbidx + 1 .. rbidx].iter().fold(T::default(), |acc, &x| acc + x);
 
-        for x in &self.values[rbidx * self.bin_size ..= r] {
+        for &x in &self.values[rbidx * self.bin_size ..= r] {
             ret += x;
         }
 
         ret
     }
 
-    pub fn get(&self, idx: usize) -> i64 {
-        let bidx = self.block_idx(idx);
-        self.values[idx] + self.inc[bidx]
+    pub fn get(&self, idx: usize) -> T {
+        self.values[idx]
     }
 }
 
@@ -121,7 +109,7 @@ mod tests {
 
     #[test]
     fn test_sqrt_decomposition() {
-        let mut sd = SqrtDecomposition::new(100);
+        let mut sd: SqrtDecomposition<i64> = SqrtDecomposition::new(100);
 
         assert!(sd.get(54) == 0);
 

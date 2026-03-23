@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use super::util;
 
 pub struct AnagramicSquares {
     words: Vec<String>
@@ -49,19 +50,6 @@ impl AnagramicSquares {
         ans
     }
 
-    fn prod(ws: &Vec<String>) -> Vec<(&String, &String)> {
-        let mut res: Vec<(&String, &String)> = Default::default();
-        for x in ws {
-            for y in ws {
-                if x == y {
-                    continue
-                }
-                res.push((x, y))
-            }
-        }
-        res
-    }
-
     pub fn solve(&self) {
         let mut gr: HashMap<String, Vec<String>> = Default::default();
 
@@ -75,7 +63,8 @@ impl AnagramicSquares {
         let ans: u64 = gr.iter()
             .filter(|(_, words)| words.len() >= 2)
             .map(|(gk, words)| {
-                Self::prod(words).iter()
+                util::prod(words, words).iter()
+                    .filter(|(w1, w2)| w1 != w2)
                     .map(|(w1, w2)| Self::aux1(gk.to_string(), w1, w2))
                     .max()
                     .unwrap_or(0)
