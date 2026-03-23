@@ -4,6 +4,7 @@ pub struct SqrtDecomposition<T> {
     bin_size: usize,
     _bin_count: usize,
     values: Vec<T>,
+    inc: Vec<T>,
     sum: Vec<T>,
 }
 
@@ -26,9 +27,10 @@ where
         let bin_count = (n + bin_size - 1).div_ceil(bin_size);
 
         let sum: Vec<T> = vec![T::default(); bin_count];
+        let inc: Vec<T> = vec![T::default(); bin_count];
         let values: Vec<T> = vec![T::default(); n];
 
-        SqrtDecomposition { bin_size, _bin_count: bin_count, values, sum }
+        SqrtDecomposition { bin_size, _bin_count: bin_count, values, inc, sum }
     }
 
     pub fn block_idx(&self, idx: usize) -> usize {
@@ -39,12 +41,31 @@ where
         block_idx * self.bin_size .. (block_idx + 1) * self.bin_size
     }
 
+     pub fn relax_block(&mut self, block_idx: usize) {
+        let dv = self.inc[block_idx];
+        if dv == T::default() {
+            return
+        }
+
+        let brange = self.block_range(block_idx);
+        let block = &mut self.values[brange];
+
+        for x in block.iter_mut() {
+            *x += dv;
+        }
+        self.sum[block_idx] += repeat_n(dv, self.bin_size).fold(T::default(), |acc, x| acc + x);
+        self.inc[block_idx] = T::default();
+    }
+
     pub fn add(&mut self, l: usize, r: usize, val: T)
     where 
         T: Default
     {
         let lbidx = self.block_idx(l);
         let rbidx = self.block_idx(r);
+
+        self.relax_block(lbidx);
+        self.relax_block(rbidx);
 
         if lbidx == rbidx {
             for x in &mut self.values[l ..= r] {
@@ -59,10 +80,8 @@ where
             self.sum[lbidx] += val;
         }
 
-        let dv = repeat_n(val, self.bin_size).fold(T::default(), |acc, x| acc + x);
-
-        for x in &mut self.sum[lbidx + 1 .. rbidx] {
-            *x += dv;
+        for x in &mut self.inc[lbidx + 1 .. rbidx] {
+            *x += val;
         }
 
         for x in &mut self.values[rbidx * self.bin_size ..= r] {
@@ -74,6 +93,9 @@ where
     pub fn sum(&mut self, l: usize, r: usize) -> T {
         let lbidx = self.block_idx(l);
         let rbidx = self.block_idx(r);
+
+        self.relax_block(lbidx);
+        self.relax_block(rbidx);
 
         let mut ret: T = T::default();
 
@@ -88,7 +110,11 @@ where
             ret += x;
         }
 
-        ret += self.sum[lbidx + 1 .. rbidx].iter().fold(T::default(), |acc, &x| acc + x);
+        let dvs = &self.inc[lbidx + 1 .. rbidx];
+        let sums = &self.sum[lbidx + 1 .. rbidx];
+        for (&dv, &sum) in dvs.iter().zip(sums.iter()) {
+            ret += repeat_n(dv, self.bin_size).fold(T::default(), |acc, x| acc + x) + sum;
+        }
 
         for &x in &self.values[rbidx * self.bin_size ..= r] {
             ret += x;
@@ -98,7 +124,8 @@ where
     }
 
     pub fn get(&self, idx: usize) -> T {
-        self.values[idx]
+        let bidx = self.block_idx(idx);
+        self.values[idx] + self.inc[bidx]
     }
 }
 
