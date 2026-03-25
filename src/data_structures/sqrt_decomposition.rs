@@ -1,4 +1,4 @@
-use std::{iter::repeat_n, ops::{Add, AddAssign, Div, Mul, Range, Sub}};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Range, Sub, SubAssign};
 
 pub struct SqrtDecomposition<T> {
     bin_size: usize,
@@ -8,17 +8,31 @@ pub struct SqrtDecomposition<T> {
     sum: Vec<T>,
 }
 
+pub trait FromUsize {
+    fn from_usize(n: usize) -> Self;
+}
+
+impl FromUsize for i64 {
+    fn from_usize(n: usize) -> i64 {
+        n as i64
+    }
+}
+
 impl<T> SqrtDecomposition<T>
 where 
     T: Default
-        + Clone
-        + Copy
-        + Eq
-        + Add<Output = T>
-        + AddAssign
-        + Sub<Output = T>
-        + Mul<Output = T>
-        + Div<Output = T>
+    + Clone
+    + Copy
+    + Eq
+    + Add<Output = T>
+    + AddAssign
+    + Sub<Output = T>
+    + SubAssign
+    + Mul<Output = T>
+    + MulAssign
+    + Div<Output = T>
+    + DivAssign
+    + FromUsize
 {
     pub fn new(n: usize) -> Self
     {
@@ -41,7 +55,7 @@ where
         block_idx * self.bin_size .. (block_idx + 1) * self.bin_size
     }
 
-     pub fn relax_block(&mut self, block_idx: usize) {
+    pub fn relax_block(&mut self, block_idx: usize) {
         let dv = self.inc[block_idx];
         if dv == T::default() {
             return
@@ -53,7 +67,7 @@ where
         for x in block.iter_mut() {
             *x += dv;
         }
-        self.sum[block_idx] += repeat_n(dv, self.bin_size).fold(T::default(), |acc, x| acc + x);
+        self.sum[block_idx] += T::from_usize(self.bin_size) * dv;
         self.inc[block_idx] = T::default();
     }
 
@@ -113,7 +127,7 @@ where
         let dvs = &self.inc[lbidx + 1 .. rbidx];
         let sums = &self.sum[lbidx + 1 .. rbidx];
         for (&dv, &sum) in dvs.iter().zip(sums.iter()) {
-            ret += repeat_n(dv, self.bin_size).fold(T::default(), |acc, x| acc + x) + sum;
+            ret += T::from_usize(self.bin_size) * dv + sum;
         }
 
         for &x in &self.values[rbidx * self.bin_size ..= r] {

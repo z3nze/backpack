@@ -14,6 +14,7 @@ pub fn prod<'a, T>(xs: &'a Vec<T>, ys: &'a Vec<T>) -> Vec<(&'a T, &'a T)> {
 mod tests {
     use super::*;
 
+    #[test]
     fn test_prod() {
         let a: Vec<i64> = vec![10, 20, 30];
         let b: Vec<i64> = vec![50, 60, 70];

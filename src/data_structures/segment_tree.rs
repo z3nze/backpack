@@ -1,13 +1,13 @@
 pub struct SegmentTree {
-    buf: Vec<i64>
+    _buf: Vec<i64>
 }
 
 impl SegmentTree {
     pub fn new(n: usize) -> Self {
         let buf: Vec<i64> = vec![0; 4 * n];
-        SegmentTree { buf }
+        SegmentTree { _buf: buf }
     }
 
-    pub fn add(&mut self, l: usize, r: usize, val: usize) {
+    pub fn add(&mut self, _l: usize, _r: usize, _val: usize) {
     }
 }
