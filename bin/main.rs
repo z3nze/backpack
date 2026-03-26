@@ -1,5 +1,5 @@
-use backpack::misc::arranged_probability;
+use backpack::math::continued_fractions::QuadraticIrrational;
 
 fn main() {
-    arranged_probability::sol();
+    let cf = QuadraticIrrational::new(2);
 }
