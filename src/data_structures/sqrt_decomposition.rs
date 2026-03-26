@@ -1,4 +1,5 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Range, Sub, SubAssign};
+use crate::math::numerical::Numerical;
+use std::ops::Range;
 
 pub struct SqrtDecomposition<T> {
     bin_size: usize,
@@ -8,31 +9,9 @@ pub struct SqrtDecomposition<T> {
     sum: Vec<T>,
 }
 
-pub trait FromUsize {
-    fn from_usize(n: usize) -> Self;
-}
-
-impl FromUsize for i64 {
-    fn from_usize(n: usize) -> i64 {
-        n as i64
-    }
-}
-
 impl<T> SqrtDecomposition<T>
 where 
-    T: Default
-    + Clone
-    + Copy
-    + Eq
-    + Add<Output = T>
-    + AddAssign
-    + Sub<Output = T>
-    + SubAssign
-    + Mul<Output = T>
-    + MulAssign
-    + Div<Output = T>
-    + DivAssign
-    + FromUsize
+    T: Numerical
 {
     pub fn new(n: usize) -> Self
     {
