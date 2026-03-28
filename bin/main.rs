@@ -1,5 +1,5 @@
 use backpack::math::continued_fractions::QuadraticIrrational;
 
 fn main() {
-    let cf = QuadraticIrrational::new(2);
+    let _cf = QuadraticIrrational::new(19);
 }
