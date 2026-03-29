@@ -1,3 +1,5 @@
+use crate::math::continued_fractions::QuadraticIrrational;
+
 pub enum Etype {
     Positive,
     Negative,
@@ -6,6 +8,9 @@ pub enum Etype {
 pub struct PellsEquation {
     et: Etype,
     _n: usize,
+}
+
+pub struct Solution {
 }
 
 impl PellsEquation {
@@ -21,6 +26,7 @@ impl PellsEquation {
     }
 
     fn solve_negative(&self) {
+        let qi = QuadraticIrrational::new(self._n as i64);
     }
 
     pub fn solve(&self) {
