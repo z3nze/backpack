@@ -1,16 +1,18 @@
 use crate::math::continued_fractions::QuadraticIrrational;
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Etype {
     Positive,
     Negative,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct PellsEquation {
     et: Etype,
     _n: usize,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Solution {
     x: i64,
     y: i64,
