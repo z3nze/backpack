@@ -53,10 +53,18 @@ mod tests {
     use super::*;
 
     #[test]
-    pub fn test_pells_equation_negative() {
-        // x^2 - d * y ^ 2 = -1
-        let pe = PellsEquation::new(2, Etype::Negative);
+    pub fn test_pells_equation_negative_solution_exists() {
+        let d: i64 = 85;
+        let pe = PellsEquation::new(d as usize, Etype::Negative);
+        let sol = pe.solve().unwrap();
+        assert_eq!(sol.x.pow(2) - d * sol.y.pow(2), -1);
+    }
+
+    #[test]
+    pub fn test_pells_equation_no_solution() {
+        let d: i64 = 7;
+        let pe = PellsEquation::new(d as usize, Etype::Negative);
         let sol = pe.solve();
-        assert_eq!(sol.unwrap(), Solution { x: 1, y: 1 });
+        assert!(sol.is_none());
     }
 }
