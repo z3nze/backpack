@@ -15,7 +15,7 @@ where
 {
     pub fn new(n: usize) -> Self
     {
-        let nsqrt = (n as f64).sqrt().max(1.0) as usize;
+        let nsqrt = n.isqrt();
         let bin_size = nsqrt;
         let bin_count = (n + bin_size - 1).div_ceil(bin_size);
 
@@ -46,7 +46,7 @@ where
         for x in block.iter_mut() {
             *x += dv;
         }
-        self.sum[block_idx] += T::from_usize(self.bin_size) * dv;
+        self.sum[block_idx] += T::try_from(self.bin_size).unwrap() * dv;
         self.inc[block_idx] = T::default();
     }
 
@@ -106,7 +106,7 @@ where
         let dvs = &self.inc[lbidx + 1 .. rbidx];
         let sums = &self.sum[lbidx + 1 .. rbidx];
         for (&dv, &sum) in dvs.iter().zip(sums.iter()) {
-            ret += T::from_usize(self.bin_size) * dv + sum;
+            ret += T::try_from(self.bin_size).unwrap() * dv + sum;
         }
 
         for &x in &self.values[rbidx * self.bin_size ..= r] {

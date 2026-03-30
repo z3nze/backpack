@@ -1,5 +1,7 @@
-pub fn gcd(a: i64, b: i64) -> i64 {
-    if a == 0 {
+use crate::math::numerical::Integer;
+
+pub fn gcd<T: Integer>(a: T, b: T) -> T {
+    if a == T::try_from(0).unwrap() {
         return b;
     }
     gcd(b % a, a)

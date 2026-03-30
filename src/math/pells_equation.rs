@@ -10,7 +10,10 @@ pub struct PellsEquation {
     _n: usize,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Solution {
+    x: i64,
+    y: i64,
 }
 
 impl PellsEquation {
@@ -22,17 +25,38 @@ impl PellsEquation {
         PellsEquation { et, _n: n }
     }
 
-    fn solve_positive(&self) {
+    fn solve_positive(&self) -> Option<Solution> {
+        None
     }
 
-    fn solve_negative(&self) {
+    fn solve_negative(&self) -> Option<Solution> {
         let qi = QuadraticIrrational::new(self._n as i64);
+        let pl = qi.period_length();
+        if pl.is_multiple_of(2) {
+            return None;
+        }
+        let (x, y) = qi.convergent(pl);
+        Some(Solution{ x, y })
     }
 
-    pub fn solve(&self) {
+    pub fn solve(&self) -> Option<Solution> {
         match self.et {
             Etype::Positive => self.solve_positive(),
             Etype::Negative => self.solve_negative(),
         }
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    pub fn test_pells_equation_negative() {
+        // x^2 - d * y ^ 2 = -1
+        let pe = PellsEquation::new(2, Etype::Negative);
+        let sol = pe.solve();
+        assert_eq!(sol.unwrap(), Solution { x: 1, y: 1 });
     }
 }

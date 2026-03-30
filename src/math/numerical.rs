@@ -1,33 +1,37 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
-
-pub trait FromUsize {
-    fn from_usize(n: usize) -> Self;
-}
-
-impl FromUsize for i64 {
-    fn from_usize(n: usize) -> i64 {
-        n as i64
-    }
-}
+use std::{fmt::Debug, ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Sub, SubAssign}};
 
 pub trait Numerical:
-    Default + Clone + Copy
-    + Eq
+    Default + Clone + Copy + Debug
+    + PartialEq + PartialOrd
     + Add<Output = Self> + AddAssign
     + Sub<Output = Self> + SubAssign
     + Mul<Output = Self> + MulAssign
     + Div<Output = Self> + DivAssign
-    + FromUsize
+    + TryFrom<usize, Error: Debug>
 {}
 
 impl<U> Numerical for U
 where
     U:
-        Default + Clone + Copy
-        + Eq
+        Default + Clone + Copy + Debug
+        + PartialEq + PartialOrd
         + Add<Output = Self> + AddAssign
         + Sub<Output = Self> + SubAssign
         + Mul<Output = Self> + MulAssign
         + Div<Output = Self> + DivAssign
-        + FromUsize,
+        + TryFrom<usize, Error: Debug>
+{}
+
+pub trait Integer:
+    Numerical
+    + Eq + Ord
+    + Rem<Output = Self> + RemAssign
+{}
+
+impl<U> Integer for U
+where 
+    U:
+        Numerical
+        + Eq + Ord
+        + Rem<Output = Self> + RemAssign
 {}

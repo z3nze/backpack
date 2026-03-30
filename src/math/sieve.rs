@@ -4,7 +4,7 @@ pub struct Sieve {
 
 impl Sieve {
     pub fn new(maxn: usize) -> Self {
-        let rn: usize = (maxn as f64).sqrt() as usize;
+        let rn: usize = maxn.isqrt(); 
         let mut is_prime = vec![true; maxn + 1];
         is_prime[..2].fill(false);
 

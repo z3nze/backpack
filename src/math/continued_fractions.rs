@@ -33,6 +33,10 @@ impl QuadraticIrrational {
         QuadraticIrrational{ _d: d, a }
     }
 
+    pub fn period_length(&self) -> usize {
+        self.a.len() - 1
+    }
+
     pub fn convergent(&self, k: usize) -> (i64, i64) {
         let mut num: i64 = 0;
         let mut den: i64 = 1;
