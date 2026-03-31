@@ -41,7 +41,11 @@ impl QuadraticIrrational {
         let mut num: i64 = 0;
         let mut den: i64 = 1;
 
-        for a_i in self.a.iter().take(k).rev() {
+        let it_first = self.a.iter().take(1);
+        let it_periodic = self.a.iter().skip(1).cycle();
+        let periodic_part: Vec<&i64> = it_first.chain(it_periodic).take(k).collect();
+
+        for &a_i in periodic_part.iter().rev() {
             num += den * a_i;
             (num, den) = (den, num);
             let g = gcd(num, den);
