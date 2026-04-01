@@ -28,7 +28,15 @@ impl PellsEquation {
     }
 
     fn solve_positive(&self) -> Option<Solution> {
-        None
+        let qi = QuadraticIrrational::new(self._n as i64);
+        let pl = qi.period_length();
+        let (x, y);
+        if pl.is_multiple_of(2) {
+            (x, y) = qi.convergent(pl);
+        } else {
+            (x, y) = qi.convergent(2 * pl);
+        }
+        Some(Solution { x, y })
     }
 
     fn solve_negative(&self) -> Option<Solution> {
@@ -68,5 +76,21 @@ mod tests {
         let pe = PellsEquation::new(d as usize, Etype::Negative);
         let sol = pe.solve();
         assert!(sol.is_none());
+    }
+
+    #[test]
+    pub fn test_pells_equation_positive_solution_even_cycle() {
+        let d: i64 = 7;
+        let pe = PellsEquation::new(d as usize, Etype::Positive);
+        let sol = pe.solve().unwrap();
+        assert_eq!(sol.x.pow(2) - d * sol.y.pow(2), 1);
+    }
+
+    #[test]
+    pub fn test_pells_equation_negative_solution_odd_cycle() {
+        let d: i64 = 13;
+        let pe = PellsEquation::new(d as usize, Etype::Positive);
+        let sol = pe.solve().unwrap();
+        assert_eq!(sol.x.pow(2) - d * sol.y.pow(2), 1);
     }
 }
