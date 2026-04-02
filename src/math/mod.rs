@@ -1,5 +1,6 @@
 pub mod continued_fractions;
 pub mod geometry;
+pub mod miller_rabin;
 pub mod number_theory;
 pub mod numerical;
 pub mod pells_equation;

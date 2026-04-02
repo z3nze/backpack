@@ -1,4 +1,4 @@
-use std::{fmt::Debug, ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Sub, SubAssign}};
+use std::{fmt::Debug, ops::{Add, AddAssign, BitAnd, BitAndAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Shl, ShlAssign, Shr, ShrAssign, Sub, SubAssign}};
 
 pub trait Numerical:
     Default + Clone + Copy + Debug
@@ -7,6 +7,9 @@ pub trait Numerical:
     + Sub<Output = Self> + SubAssign
     + Mul<Output = Self> + MulAssign
     + Div<Output = Self> + DivAssign
+    + Shr<Output = Self> + ShrAssign
+    + Shl<Output = Self> + ShlAssign
+    + BitAnd<Output = Self> + BitAndAssign
     + TryFrom<usize, Error: Debug>
 {}
 
@@ -19,6 +22,9 @@ where
         + Sub<Output = Self> + SubAssign
         + Mul<Output = Self> + MulAssign
         + Div<Output = Self> + DivAssign
+        + Shr<Output = Self> + ShrAssign
+        + Shl<Output = Self> + ShlAssign
+        + BitAnd<Output = Self> + BitAndAssign
         + TryFrom<usize, Error: Debug>
 {}
 
