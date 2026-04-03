@@ -1,6 +1,6 @@
 use crate::math::numerical::Integer;
 
-pub fn is_prime<T: Integer>(n: T) -> bool {
+pub fn is_prime<T: Integer>(n: T, iter: usize) -> bool {
     if n < T::try_from(4).unwrap() {
         return n == T::try_from(2).unwrap() || n == T::try_from(3).unwrap();
     }
@@ -11,6 +11,5 @@ pub fn is_prime<T: Integer>(n: T) -> bool {
         d >>= T::try_from(1).unwrap();
         s += 1;
     }
-    // continue
     true 
 }
