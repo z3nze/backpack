@@ -1,5 +1,9 @@
 use crate::math::numerical::Integer;
 
+pub fn check_composite<T: Integer>(n: Integer, a: Integer, d: Integer, s: usize) -> bool {
+    false
+}
+
 pub fn is_prime<T: Integer>(n: T, iter: usize) -> bool {
     if n < T::try_from(4).unwrap() {
         return n == T::try_from(2).unwrap() || n == T::try_from(3).unwrap();
