@@ -1,7 +1,7 @@
 use crate::math::numerical::Integer;
 
-pub fn check_composite<T: Integer>(n: Integer, a: Integer, d: Integer, s: usize) -> bool {
-    false
+pub fn check_composite<T: Integer>(n: T, a: T, d: T, s: usize) -> bool {
+    unimplemented!()
 }
 
 pub fn is_prime<T: Integer>(n: T, iter: usize) -> bool {
