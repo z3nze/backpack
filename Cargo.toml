@@ -10,6 +10,10 @@ criterion = "0.5"
 name = "sieve_bench"
 harness = false
 
+[[bench]]
+name = "random_bench"
+harness = false
+
 [[bin]]
 name = "main"
 path = "bin/main.rs"
