@@ -1,5 +1,9 @@
 use crate::math::numerical::Integer;
 
+pub fn powmod<T: Integer>(base: T, e: T, m: T) -> T {
+    unimplemented!()
+}
+
 pub fn check_composite<T: Integer>(n: T, a: T, d: T, s: usize) -> bool {
     unimplemented!()
 }
