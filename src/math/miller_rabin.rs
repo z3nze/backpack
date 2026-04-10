@@ -1,7 +1,14 @@
 use crate::math::numerical::Integer;
 
 pub fn powmod<T: Integer>(base: T, e: T, m: T) -> T {
-    unimplemented!()
+    if e == T::try_from(0).unwrap() {
+        return T::try_from(1).unwrap();
+    }
+    if e % T::try_from(2).unwrap() == T::try_from(0).unwrap() {
+        let eh = powmod(base, e / T::try_from(2).unwrap(), m);
+        return (eh * eh) % m;
+    }
+    (base * powmod(base, e - T::try_from(1).unwrap(), m)) % m
 }
 
 pub fn check_composite<T: Integer>(n: T, a: T, d: T, s: usize) -> bool {
