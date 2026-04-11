@@ -1,5 +1,6 @@
 use std::{fmt::Debug, ops::{Add, AddAssign, BitAnd, BitAndAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Shl, ShlAssign, Shr, ShrAssign, Sub, SubAssign}};
 
+
 pub trait Numerical:
     Default + Clone + Copy + Debug
     + PartialEq + PartialOrd
@@ -12,6 +13,7 @@ pub trait Numerical:
     + BitAnd<Output = Self> + BitAndAssign
     + TryFrom<usize, Error: Debug>
 {}
+
 
 impl<U> Numerical for U
 where
@@ -28,11 +30,13 @@ where
         + TryFrom<usize, Error: Debug>
 {}
 
+
 pub trait Integer:
     Numerical
     + Eq + Ord
     + Rem<Output = Self> + RemAssign
 {}
+
 
 impl<U> Integer for U
 where 
