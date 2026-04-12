@@ -12,7 +12,7 @@ impl Xoshiro256ppGenerator {
     }
 
     pub fn rand(&mut self) -> u64 {
-        let res = (self.state[0] + self.state[3]).rotate_left(23) + self.state[0];
+        let res = (self.state[0].wrapping_add(self.state[3])).rotate_left(23).wrapping_add(self.state[0]);
         let t = self.state[1] << 17;
 
         self.state[2] ^= self.state[0];
@@ -37,10 +37,10 @@ impl SplitMix64Generator {
     }
 
     pub fn rand(&mut self) -> u64 {
-        self.state += 0x9E3779B97F4A7C15;
+        self.state = self.state.wrapping_add(0x9E3779B97F4A7C15);
         let mut result = self.state;
-        result = (result ^ (result >> 30)) * 0xBF58476D1CE4E5B9;
-        result = (result ^ (result >> 27)) * 0x94D049BB133111EB;
+        result = (result ^ (result >> 30)).wrapping_mul(0xBF58476D1CE4E5B9);
+        result = (result ^ (result >> 27)).wrapping_mul(0x94D049BB133111EB);
         result ^ (result >> 31)
     }
 }

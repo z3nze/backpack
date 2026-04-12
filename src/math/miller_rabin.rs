@@ -11,7 +11,7 @@ pub fn powmod<T: Integer>(base: T, e: T, m: T) -> T {
     if e == _0 {
         return _1;
     }
-    if e % _2 == _0 {
+if e % _2 == _0 {
         let eh = powmod(base, e / _2, m);
         return (eh * eh) % m;
     }
@@ -65,4 +65,17 @@ pub fn is_prime<T: Integer>(n: T, iter: usize) -> bool {
         }
     }
     true 
+}
+
+
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+    #[test]
+    pub fn test_is_prime() {
+        assert!(!is_prime(4u64, 10));
+        assert!(is_prime(1000000007u64, 10));
+        assert!(!is_prime(12934692u64, 10));
+    }
 }
