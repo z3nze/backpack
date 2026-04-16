@@ -1,12 +1,12 @@
-pub struct Triangle {
+pub struct SidesTriangle {
     sides: [u64; 3],
 }
 
-impl Triangle {
+impl SidesTriangle {
     pub fn new(a: u64, b: u64, c: u64) -> Self {
         let mut sides = [a, b, c];
         sides.sort();
-        Triangle { sides }
+        SidesTriangle { sides }
     }
 
     pub fn area_heron(&self) -> f64 {
@@ -35,4 +35,8 @@ impl Triangle {
 
         false
     }
+}
+
+pub struct PointsTriangle {
+    vertices: [(f64, f64); 3],
 }
