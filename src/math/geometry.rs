@@ -2,6 +2,22 @@ pub struct SidesTriangle {
     sides: [u64; 3],
 }
 
+pub struct Point<T, const N: usize> {
+    dims: usize,
+    coordinates: [T; N],
+}
+
+pub struct Polygon2D<T, const N: usize> {
+    vertices: [Point<T, 2>; N],
+}
+
+impl<T, const N: usize> Polygon2D<T, N> {
+    pub fn is_inside(point: Point<T, 2>) -> bool {
+        unimplemented!()
+    }
+}
+
+
 impl SidesTriangle {
     pub fn new(a: u64, b: u64, c: u64) -> Self {
         let mut sides = [a, b, c];
