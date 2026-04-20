@@ -1,3 +1,5 @@
+use crate::math::numerical::Numerical;
+
 pub struct SidesTriangle {
     sides: [u64; 3],
 }
@@ -15,6 +17,9 @@ impl<T, const N: usize> Polygon2D<T, N> {
     pub fn is_inside(point: Point<T, 2>) -> bool {
         unimplemented!()
     }
+}
+
+pub fn signed_triangle_area<T: Numerical>(triangle: Polygon2D<T, 3>) -> T {
 }
 
 
