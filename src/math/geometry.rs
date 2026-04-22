@@ -1,3 +1,5 @@
+#![allow(clippy::just_underscores_and_digits)]
+
 use crate::math::numerical::Numerical;
 
 pub struct SidesTriangle {
@@ -19,7 +21,13 @@ impl<T, const N: usize> Polygon2D<T, N> {
     }
 }
 
+pub fn cross<T: Numerical>(a: Point<T, 2>, b: Point<T, 2>) -> T {
+    a.coordinates[0] * b.coordinates[1] - a.coordinates[1] * b.coordinates[0]
+}
+
 pub fn signed_triangle_area<T: Numerical>(triangle: Polygon2D<T, 3>) -> T {
+    let _0 = T::try_from(0).unwrap();
+    _0
 }
 
 
