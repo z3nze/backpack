@@ -1,33 +1,99 @@
 #![allow(clippy::just_underscores_and_digits)]
 
 use crate::math::numerical::Numerical;
+use std::ops::{Add, Sub};
 
 pub struct SidesTriangle {
     sides: [u64; 3],
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point<T, const N: usize> {
     dims: usize,
     coordinates: [T; N],
 }
 
-pub struct Polygon2D<T, const N: usize> {
-    vertices: [Point<T, 2>; N],
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Vector<T, const N: usize> {
+    dims: usize,
+    coordinates: [T; N],
 }
 
-impl<T, const N: usize> Polygon2D<T, N> {
+#[derive(Debug, Clone, PartialEq)]
+pub struct Polygon<T, const N: usize> {
+    vertices: Vec<Point<T, N>>,
+}
+
+impl<T, const N: usize> Sub for Point<T, N> 
+where 
+    T: Numerical 
+{
+    type Output = Vector<T, N>;
+
+    fn sub(self, other: Self) -> Vector<T, N> {
+        let dims = N;
+        let coordinates: [T; N] = 
+            self.coordinates.iter().zip(other.coordinates.iter()).map(|(&x, &y)| x - y).collect::<Vec<T>>().try_into().unwrap();
+
+        Vector {
+            dims,
+            coordinates,
+        }
+    }
+}
+
+impl<T, const N: usize> Add for Vector<T, N>
+where 
+    T: Numerical
+{
+    type Output = Vector<T, N>;
+
+    fn add(self, other: Vector<T, N>) -> Vector<T, N> {
+        let dims = N;
+        let coordinates = self.coordinates.iter().zip(other.coordinates.iter()).map(|(&x, &y)| x + y).collect::<Vec<T>>().try_into().unwrap();
+
+        Vector {
+            dims,
+            coordinates,
+        }
+    }
+}
+
+impl<T, const N: usize> Sub for Vector<T, N>
+where 
+    T: Numerical
+{
+    type Output = Vector<T, N>;
+
+    fn sub(self, other: Vector<T, N>) -> Vector<T, N> {
+        let dims = N;
+        let coordinates = self.coordinates.iter().zip(other.coordinates.iter()).map(|(&x, &y)| x - y).collect::<Vec<T>>().try_into().unwrap();
+
+        Vector {
+            dims,
+            coordinates,
+        }
+    }
+}
+
+impl<T> Polygon<T, 2> {
     pub fn is_inside(point: Point<T, 2>) -> bool {
         unimplemented!()
     }
 }
 
-pub fn cross<T: Numerical>(a: Point<T, 2>, b: Point<T, 2>) -> T {
+pub fn cross<T: Numerical>(a: Vector<T, 2>, b: Vector<T, 2>) -> T {
     a.coordinates[0] * b.coordinates[1] - a.coordinates[1] * b.coordinates[0]
 }
 
-pub fn signed_triangle_area<T: Numerical>(triangle: Polygon2D<T, 3>) -> T {
+pub fn signed_triangle_area<T: Numerical>(triangle: Polygon<T, 2>) -> T {
     let _0 = T::try_from(0).unwrap();
-    _0
+
+    let p0 = triangle.vertices[0];
+    let p1 = triangle.vertices[1];
+    let p2 = triangle.vertices[2];
+
+    cross(p1 - p0, p2 - p1)
 }
 
 
