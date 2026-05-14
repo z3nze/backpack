@@ -24,6 +24,18 @@ pub struct Polygon<T, const N: usize> {
     vertices: Vec<Point<T, N>>,
 }
 
+impl <T, const N: usize> Point<T, N>
+where 
+    T: Numerical
+{
+    pub fn new(xv: Vec<T>) -> Self {
+        Point {
+            dims: N,
+            coordinates: xv.try_into().unwrap(),
+        }
+    }
+}
+
 impl<T, const N: usize> Sub for Point<T, N> 
 where 
     T: Numerical 
@@ -151,8 +163,4 @@ impl SidesTriangle {
 
         false
     }
-}
-
-pub struct PointsTriangle {
-    vertices: [(f64, f64); 3],
 }

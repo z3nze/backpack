@@ -8,7 +8,7 @@ macro_rules! read {
             if IDX == TOKENS.len() {
                 BUF.clear();
                 std::io::stdin().lock().read_to_end(&mut BUF).unwrap();
-                TOKENS = String::from_utf8_unchecked(BUF)
+                TOKENS = String::from_utf8_unchecked(BUF.clone())
                     .split_whitespace()
                     .map(|s| s.to_string())
                     .collect();
