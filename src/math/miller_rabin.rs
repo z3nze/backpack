@@ -4,9 +4,9 @@ use std::time::SystemTime;
 use crate::{math::numerical::{Integer}, misc::random::Xoshiro256ppGenerator};
 
 pub fn powmod<T: Integer>(base: T, e: T, m: T) -> T {
-    let _0 = T::try_from(0).unwrap();
-    let _1 = T::try_from(1).unwrap();
-    let _2 = T::try_from(2).unwrap();
+    let _0 = T::from_usize_lossy(0);
+    let _1 = T::from_usize_lossy(1);
+    let _2 = T::from_usize_lossy(2);
 
     if e == _0 {
         return _1;
@@ -20,7 +20,7 @@ if e % _2 == _0 {
 
 
 pub fn check_composite<T: Integer>(n: T, a: T, d: T, s: usize) -> bool {
-    let _1 = T::try_from(1).unwrap();
+    let _1 = T::from_usize_lossy(1);
     let mut x: T = powmod(a, d, n);
 
     if x == _1 || x == n - _1 {
@@ -38,11 +38,11 @@ pub fn check_composite<T: Integer>(n: T, a: T, d: T, s: usize) -> bool {
 }
 
 pub fn is_prime<T: Integer>(n: T, iter: usize) -> bool {
-    let _4 = T::try_from(4).unwrap();
-    let _2 = T::try_from(2).unwrap();
-    let _3 = T::try_from(3).unwrap();
-    let _1 = T::try_from(1).unwrap();
-    let _0 = T::try_from(0).unwrap();
+    let _4 = T::from_usize_lossy(4);
+    let _2 = T::from_usize_lossy(2);
+    let _3 = T::from_usize_lossy(3);
+    let _1 = T::from_usize_lossy(1);
+    let _0 = T::from_usize_lossy(0);
 
     if n < _4 {
         return n == _2 || n == _3;
@@ -59,7 +59,7 @@ pub fn is_prime<T: Integer>(n: T, iter: usize) -> bool {
     let mut rg = Xoshiro256ppGenerator::new(now.elapsed().unwrap().as_secs());
 
     for _ in 0..iter {
-        let a: T = _2 + T::try_from(rg.rand() as usize).unwrap() % (n - _3);
+        let a: T = _2 + T::from_usize_lossy(rg.rand() as usize) % (n - _3);
         if check_composite(n, a, d, s) {
             return false;
         }
