@@ -110,7 +110,7 @@ where
         let mut ret : bool = true;
         for (&p1, &p2) in edges {
             let triangle = Polygon::<T, 2>::new(vec![p1, p2, point]);
-            ret &= signed_triangle_area(triangle) <= _0;
+            ret &= signed_triangle_area(&triangle) <= _0;
         }
         ret
     }
@@ -120,7 +120,7 @@ pub fn cross<T: Numerical>(a: Vector<T, 2>, b: Vector<T, 2>) -> T {
     a.coordinates[0] * b.coordinates[1] - a.coordinates[1] * b.coordinates[0]
 }
 
-pub fn signed_triangle_area<T: Numerical>(triangle: Polygon<T, 2>) -> T {
+pub fn signed_triangle_area<T: Numerical>(triangle: &Polygon<T, 2>) -> T {
     let p0 = triangle.vertices[0];
     let p1 = triangle.vertices[1];
     let p2 = triangle.vertices[2];
@@ -187,7 +187,7 @@ mod tests {
         let triangle = Polygon::<f64, 2> {
             vertices,
         };
-        assert_eq!(signed_triangle_area(triangle), -0.5);
+        assert_eq!(signed_triangle_area(&triangle), -0.5);
     }
 
     #[test]

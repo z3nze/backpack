@@ -23,7 +23,7 @@ fn main() {
         let mut triangle = Polygon::<f64, 2> {
             vertices: points.clone(),
         };
-        if signed_triangle_area(triangle.clone()) > 0.0 {
+        if signed_triangle_area(&triangle) > 0.0 {
             points.reverse();
             triangle = Polygon { vertices: points };
         }
