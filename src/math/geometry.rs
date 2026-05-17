@@ -104,12 +104,13 @@ where
     T: Numerical
 {
     pub fn contains(self, point: Point<T, 2>) -> bool {
-        let _0 = T::from_usize_lossy(0);
+        let _0 = T::LFusize(0);
+
         let edges = self.vertices.iter().zip(self.vertices.iter().cycle().skip(1));
         let mut ret : bool = true;
         for (&p1, &p2) in edges {
             let triangle = Polygon::<T, 2>::new(vec![p1, p2, point]);
-            ret &= signed_triangle_area(triangle) <= _0
+            ret &= signed_triangle_area(triangle) <= _0;
         }
         ret
     }
@@ -120,13 +121,11 @@ pub fn cross<T: Numerical>(a: Vector<T, 2>, b: Vector<T, 2>) -> T {
 }
 
 pub fn signed_triangle_area<T: Numerical>(triangle: Polygon<T, 2>) -> T {
-    let _2 = T::from_usize_lossy(2);
-
     let p0 = triangle.vertices[0];
     let p1 = triangle.vertices[1];
     let p2 = triangle.vertices[2];
 
-    cross(p1 - p0, p2 - p1) / _2
+    cross(p1 - p0, p2 - p1) / T::LFusize(2)
 }
 
 
@@ -189,5 +188,31 @@ mod tests {
             vertices,
         };
         assert_eq!(signed_triangle_area(triangle), -0.5);
+    }
+
+    #[test]
+    pub fn test_contains() {
+        let vertices = vec![
+            Point::<f64, 2> {
+                dims: 2,
+                coordinates: [0.0, 10.0],
+            },
+            Point::<f64, 2> {
+                dims: 2,
+                coordinates: [10.0, -10.0],
+            },
+            Point::<f64, 2> {
+                dims: 2,
+                coordinates: [-10.0, -10.0],
+            }
+        ];
+        let triangle = Polygon::<f64, 2> {
+            vertices,
+        };
+        let point = Point::<f64, 2> {
+            dims: 2,
+            coordinates: [0.0, 0.0],
+        };
+        assert!(triangle.contains(point));
     }
 }

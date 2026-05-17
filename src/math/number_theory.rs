@@ -3,16 +3,16 @@
 use crate::math::numerical::Integer;
 
 pub fn gcd<T: Integer>(a: T, b: T) -> T {
-    if a == T::from_usize_lossy(0) {
+    if a == T::LFusize(0) {
         return b;
     }
     gcd(b % a, a)
 }
 
 pub fn phi<T: Integer>(mut n: T) -> T {
-    let _0 = T::from_usize_lossy(0);
-    let _1 = T::from_usize_lossy(1);
-    let _2 = T::from_usize_lossy(2);
+    let _0 = T::LFusize(0);
+    let _1 = T::LFusize(1);
+    let _2 = T::LFusize(2);
 
     let mut result = n;
     let mut i = _2;
