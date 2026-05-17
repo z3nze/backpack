@@ -109,7 +109,7 @@ where
         let mut ret : bool = true;
         for (&p1, &p2) in edges {
             let triangle = Polygon::<T, 2>::new(vec![p1, p2, point]);
-            ret &= signed_triangle_area(triangle) >= _0
+            ret &= signed_triangle_area(triangle) <= _0
         }
         ret
     }
@@ -162,5 +162,32 @@ impl SidesTriangle {
         }
 
         false
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    pub fn test_signed_triangle_area() {
+        let vertices = vec![
+            Point::<f64, 2> {
+                dims: 2,
+                coordinates: [0.0, 0.0],
+            },
+            Point::<f64, 2> {
+                dims: 2,
+                coordinates: [0.0, 1.0],
+            },
+            Point::<f64, 2> {
+                dims: 2,
+                coordinates: [1.0, 0.0],
+            }
+        ];
+        let triangle = Polygon::<f64, 2> {
+            vertices,
+        };
+        assert_eq!(signed_triangle_area(triangle), -0.5);
     }
 }

@@ -1,26 +1,35 @@
 use backpack::read;
-use backpack::math::geometry::{Point, Polygon};
-use std::io::{Read, Write};
+use backpack::math::geometry::{Point, Polygon, signed_triangle_area};
+use std::io::{Read};
 
 fn main() {
     let mut result = 0;
     let zero = Point::new(vec![0.0, 0.0]);
     for _ in 0 .. 1000 {
         let s : String = read!();
-        let points = s.split(',')
+        let input_points_flat = s
+            .split(',')
             .map(|x| x.parse::<f64>().unwrap())
-            .collect::<Vec<_>>()
+            .collect::<Vec<_>>();
+
+        let input_points = input_points_flat
             .chunks(2)
+            .collect::<Vec<_>>();
+
+        let mut points = input_points.iter()
             .map(|x| Point::<f64, 2>::new(vec![x[0], x[1]]))
             .collect::<Vec<_>>();
-        let triangle = Polygon::<f64, 2> {
-            vertices: points,
+        
+        let mut triangle = Polygon::<f64, 2> {
+            vertices: points.clone(),
         };
+        if signed_triangle_area(triangle.clone()) > 0.0 {
+            points.reverse();
+            triangle = Polygon { vertices: points };
+        }
         if triangle.contains(zero) {
             result += 1;
         }
     }
-    result += 1;
-    std::io::stdout().write_all(result.to_string().as_bytes()).expect("write fail");
-    std::io::stdout().flush().expect("flush fail");
+    println!("{}", result);
 }
