@@ -46,7 +46,7 @@ where
         for x in block.iter_mut() {
             *x += dv;
         }
-        self.sum[block_idx] += T::LFusize(self.bin_size) * dv;
+        self.sum[block_idx] += T::lf_usize(self.bin_size) * dv;
         self.inc[block_idx] = T::default();
     }
 
@@ -106,7 +106,7 @@ where
         let dvs = &self.inc[lbidx + 1 .. rbidx];
         let sums = &self.sum[lbidx + 1 .. rbidx];
         for (&dv, &sum) in dvs.iter().zip(sums.iter()) {
-            ret += T::LFusize(self.bin_size) * dv + sum;
+            ret += T::lf_usize(self.bin_size) * dv + sum;
         }
 
         for &x in &self.values[rbidx * self.bin_size ..= r] {

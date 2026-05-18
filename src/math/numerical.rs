@@ -1,29 +1,29 @@
 use std::{fmt::Debug, ops::{Add, AddAssign, BitAnd, BitAndAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Shl, ShlAssign, Shr, ShrAssign, Sub, SubAssign}};
 
 pub trait LossyFromUsize {
-    fn LFusize(n: usize) -> Self;
+    fn lf_usize(n: usize) -> Self;
 }
 
 impl LossyFromUsize for i64 {
-    fn LFusize(n: usize) -> Self {
+    fn lf_usize(n: usize) -> Self {
         n as i64
     }
 }
 
 impl LossyFromUsize for u64 {
-    fn LFusize(n: usize) -> Self {
+    fn lf_usize(n: usize) -> Self {
         n as u64
     }
 }
 
 impl LossyFromUsize for i32 {
-    fn LFusize(n: usize) -> Self {
+    fn lf_usize(n: usize) -> Self {
         n as i32
     }
 }
 
 impl LossyFromUsize for f64 {
-    fn LFusize(n: usize) -> Self {
+    fn lf_usize(n: usize) -> Self {
         n as f64
     }
 }

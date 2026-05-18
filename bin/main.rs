@@ -1,22 +1,19 @@
-use backpack::read;
 use backpack::math::geometry::{Point, Polygon, signed_triangle_area};
-use std::io::{Read};
+use backpack::io::console::Scanner;
 
 fn main() {
     let mut result = 0;
     let zero = Point::new(vec![0.0, 0.0]);
+    let mut cin = Scanner::default();
     for _ in 0 .. 1000 {
-        let s : String = read!();
-        let input_points_flat = s
+        let s : String = cin.read();
+        let mut points = s
             .split(',')
             .map(|x| x.parse::<f64>().unwrap())
-            .collect::<Vec<_>>();
-
-        let input_points = input_points_flat
+            .collect::<Vec<_>>()
             .chunks(2)
-            .collect::<Vec<_>>();
-
-        let mut points = input_points.iter()
+            .collect::<Vec<_>>()
+            .iter()
             .map(|x| Point::<f64, 2>::new(vec![x[0], x[1]]))
             .collect::<Vec<_>>();
         

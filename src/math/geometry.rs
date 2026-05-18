@@ -104,7 +104,7 @@ where
     T: Numerical
 {
     pub fn contains(self, point: Point<T, 2>) -> bool {
-        let _0 = T::LFusize(0);
+        let _0 = T::lf_usize(0);
 
         let edges = self.vertices.iter().zip(self.vertices.iter().cycle().skip(1));
         let mut ret : bool = true;
@@ -125,7 +125,7 @@ pub fn signed_triangle_area<T: Numerical>(triangle: &Polygon<T, 2>) -> T {
     let p1 = triangle.vertices[1];
     let p2 = triangle.vertices[2];
 
-    cross(p1 - p0, p2 - p1) / T::LFusize(2)
+    cross(p1 - p0, p2 - p1) / T::lf_usize(2)
 }
 
 

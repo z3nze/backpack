@@ -4,9 +4,9 @@ use std::time::SystemTime;
 use crate::{math::numerical::{Integer}, misc::random::Xoshiro256ppGenerator};
 
 pub fn powmod<T: Integer>(base: T, e: T, m: T) -> T {
-    let _0 = T::LFusize(0);
-    let _1 = T::LFusize(1);
-    let _2 = T::LFusize(2);
+    let _0 = T::lf_usize(0);
+    let _1 = T::lf_usize(1);
+    let _2 = T::lf_usize(2);
 
     if e == _0 {
         return _1;
@@ -21,7 +21,7 @@ pub fn powmod<T: Integer>(base: T, e: T, m: T) -> T {
 
 
 pub fn check_composite<T: Integer>(n: T, a: T, d: T, s: usize) -> bool {
-    let _1 = T::LFusize(1);
+    let _1 = T::lf_usize(1);
     let mut x: T = powmod(a, d, n);
 
     if x == _1 || x == n - _1 {
@@ -39,12 +39,12 @@ pub fn check_composite<T: Integer>(n: T, a: T, d: T, s: usize) -> bool {
 }
 
 pub fn is_prime<T: Integer>(n: T, iter: usize) -> bool {
-    let _2 = T::LFusize(2);
-    let _3 = T::LFusize(3);
-    let _1 = T::LFusize(1);
-    let _0 = T::LFusize(0);
+    let _2 = T::lf_usize(2);
+    let _3 = T::lf_usize(3);
+    let _1 = T::lf_usize(1);
+    let _0 = T::lf_usize(0);
 
-    if n < T::LFusize(4) {
+    if n < T::lf_usize(4) {
         return n == _2 || n == _3;
     }
 
@@ -59,7 +59,7 @@ pub fn is_prime<T: Integer>(n: T, iter: usize) -> bool {
     let mut rg = Xoshiro256ppGenerator::new(now.elapsed().unwrap().as_secs());
 
     for _ in 0..iter {
-        let a: T = _2 + T::LFusize(rg.rand() as usize) % (n - _3);
+        let a: T = _2 + T::lf_usize(rg.rand() as usize) % (n - _3);
         if check_composite(n, a, d, s) {
             return false;
         }
