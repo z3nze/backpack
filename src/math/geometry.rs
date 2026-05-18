@@ -103,7 +103,7 @@ impl<T> Polygon<T, 2>
 where 
     T: Numerical
 {
-    pub fn contains(self, point: Point<T, 2>) -> bool {
+    pub fn contains(&self, point: Point<T, 2>) -> bool {
         let _0 = T::lf_usize(0);
 
         let edges = self.vertices.iter().zip(self.vertices.iter().cycle().skip(1));
