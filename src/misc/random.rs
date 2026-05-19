@@ -44,3 +44,10 @@ impl SplitMix64Generator {
         result ^ (result >> 31)
     }
 }
+
+pub fn shuffle<T>(slice: &mut [T], randgen: &mut Xoshiro256ppGenerator) {
+    for i in (1..slice.len()).rev() {
+        let j = (randgen.rand() as usize) % (i + 1);
+        slice.swap(i, j);
+    }
+}
