@@ -2,6 +2,7 @@
 name = "backpack"
 version = "0.1.0"
 edition = "2024"
+default-run = "main"
 
 [dependencies]
 criterion = "0.5"
@@ -17,3 +18,7 @@ harness = false
 [[bin]]
 name = "main"
 path = "bin/main.rs"
+
+[[bin]]
+name = "monopoly"
+path = "bin/monopoly.rs"
