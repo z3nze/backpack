@@ -23,12 +23,11 @@ where
     pub fn P(&self, x: T) -> T {
         let n = self.x.len();
         (0..n)
-            .map(|i| (i, (0..i).chain(i + 1 .. n)))
-            .map(|(i, js)| {
-                js
-                    .map(|j| (x - self.x[j]) / (self.x[i] - self.x[j]))
-                    .fold(T::lf_usize(1), |acc, v| acc * v) * self.y[i]
-            })
+            .map(|i| 
+                (0..i).chain(i + 1 .. n)
+                .map(|j| (x - self.x[j]) / (self.x[i] - self.x[j]))
+                .fold(T::lf_usize(1), |acc, v| acc * v) * self.y[i]
+            )
             .fold(T::lf_usize(0), |acc, v| acc + v)
     }
 }
