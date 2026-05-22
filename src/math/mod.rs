@@ -4,4 +4,5 @@ pub mod miller_rabin;
 pub mod number_theory;
 pub mod numerical;
 pub mod pells_equation;
+pub mod polynomials;
 pub mod sieve;
