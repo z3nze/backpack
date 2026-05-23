@@ -62,7 +62,12 @@ where
     pub fn P(&self, x: T) -> T {
         let n = self.x.len();
         let nd = (0 .. n)
-            .map(|i| (self.yw[i] / (x - self.x[i]), self.w[i] / (x - self.x[i])))
+            .map(|i| 
+                {
+                    let den: T = x - self.x[i];
+                    (self.yw[i] / den, self.w[i] / den)
+                }
+            )
             .fold((T::lf_usize(0), T::lf_usize(0)), |(num, den), (a, b)| (num + a, den + b));
         nd.0 / nd.1
     }
