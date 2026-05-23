@@ -36,9 +36,9 @@ pub struct LagrangeInterpolationBarycentric<T>
 where 
     T: Numerical
 {
-    w: Vec<T>,
     x: Vec<T>,
-    y: Vec<T>,
+    w: Vec<T>,
+    yw: Vec<T>,
 }
 
 impl <T> LagrangeInterpolationBarycentric<T>
@@ -54,19 +54,17 @@ where
             .map(|j| x[i] - x[j])
             .fold(T::lf_usize(1), |acc, v| acc * v)
         ).collect::<Vec<_>>();
+        let yw: Vec<T> = y.iter().zip(w.iter()).map(|(&a, &b)| a * b).collect::<Vec<_>>();
 
-        LagrangeInterpolationBarycentric  { x, y, w }
+        LagrangeInterpolationBarycentric  { x, w, yw }
     }
 
     pub fn P(&self, x: T) -> T {
         let n = self.x.len();
-        let numerator = (0 .. n)
-            .map(|i| self.w[i] * self.y[i] / (x - self.x[i]))
-            .fold(T::lf_usize(0), |acc, v| acc + v);
-        let denominator = (0 .. n)
-            .map(|i| self.w[i] / (x - self.x[i]))
-            .fold(T::lf_usize(0), |acc, v| acc + v);
-        numerator / denominator
+        let nd = (0 .. n)
+            .map(|i| (self.yw[i] / (x - self.x[i]), self.w[i] / (x - self.x[i])))
+            .fold((T::lf_usize(0), T::lf_usize(0)), |(num, den), (a, b)| (num + a, den + b));
+        nd.0 / nd.1
     }
 }
 
@@ -88,7 +86,6 @@ mod tests {
         let li = LagrangeInterpolationBarycentric::new(&points);
 
         let eps: f64 = 1e-9;
-
         assert!((li.P(4.0) - 58.0).abs() < eps);
     }
 }
