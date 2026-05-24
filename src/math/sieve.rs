@@ -6,11 +6,10 @@ pub struct Sieve {
 
 impl Sieve {
     pub fn new(maxn: usize) -> Self {
-        let rn: usize = maxn.isqrt(); 
         let mut is_prime = vec![Cell::new(true); maxn + 1];
         is_prime[..2].fill(Cell::new(false));
 
-        is_prime.iter().enumerate().take(rn + 1).skip(2)
+        is_prime.iter().enumerate().take(maxn.isqrt() + 1).skip(2)
             .filter(|(_, prime)| prime.get())
             .for_each(|(i, _)| is_prime.iter().skip(i * i).step_by(i).for_each(|j| j.set(false)));
 
