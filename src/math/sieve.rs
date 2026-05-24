@@ -1,28 +1,26 @@
+use std::cell::Cell;
+
 pub struct Sieve {
-    is_prime: Vec<bool>,
+    is_prime: Vec<Cell<bool>>,
 }
 
 impl Sieve {
     pub fn new(maxn: usize) -> Self {
         let rn: usize = maxn.isqrt(); 
-        let mut is_prime = vec![true; maxn + 1];
-        is_prime[..2].fill(false);
+        let mut is_prime = vec![Cell::new(true); maxn + 1];
+        is_prime[..2].fill(Cell::new(false));
 
-        for i in 2..=rn {
-            if !is_prime[i] {
-                continue
-            }
-            for j in is_prime.iter_mut().skip(i * i).step_by(i) {
-                *j = false;
-            }
-        }
+        is_prime.iter().enumerate().take(rn + 1).skip(2)
+            .filter(|(_, prime)| prime.get())
+            .for_each(|(i, _)| is_prime.iter().skip(i * i).step_by(i).for_each(|j| j.set(false)));
+
         Sieve { 
             is_prime
         }
     }
 
     pub fn is_prime(&self, n: usize) -> bool {
-        self.is_prime[n]
+        self.is_prime[n].get()
     }
 }
 
