@@ -41,3 +41,17 @@ pub fn special_sum_sets(n: usize) -> Vec<usize> {
 
     candidates.iter().min_by_key(|x| x.iter().sum::<usize>()).unwrap().to_vec()
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    pub fn test_special_sum_sets() {
+        assert_eq!(special_sum_sets(1), vec![1]);
+        assert_eq!(special_sum_sets(2), vec![1, 2]);
+        assert_eq!(special_sum_sets(3), vec![2, 3, 4]);
+        assert_eq!(special_sum_sets(4), vec![3, 5, 6, 7]);
+    }
+}
