@@ -28,6 +28,54 @@ impl LossyFromUsize for f64 {
     }
 }
 
+pub struct NaiveLongInt {
+    blocks: Vec<u64>
+}
+
+impl NaiveLongInt {
+    pub fn new(n: u64) -> Self {
+        NaiveLongInt {
+            blocks: vec![n; 1]
+        }
+    }
+}
+
+impl Mul for NaiveLongInt {
+    type Output = NaiveLongInt;
+
+    fn mul(self, rhs: NaiveLongInt) -> Self {
+        let a = &self.blocks;
+        let b = &rhs.blocks;
+        let n = a.len();
+        let m = b.len();
+        
+        let mut blocks: Vec<u64> = vec![0; n * m + 1];
+
+        for i in 0 .. n {
+            for j in 0 .. m {
+                let uv = blocks[i * j] as u128 + (a[i] as u128) * (b[j] as u128);
+                let carry = uv >> 64;
+                let val = uv as u64;
+                blocks[i * j + 1] += carry as u64;
+                blocks[i * j] = val;
+            }
+        }
+
+        if blocks.last().unwrap() == &0 && blocks.len() > 1 {
+            blocks.pop();
+        }
+
+        NaiveLongInt { blocks }
+    }
+}
+
+impl Add for NaiveLongInt {
+    type Output = NaiveLongInt;
+
+    fn add(self, rhs: NaiveLongInt) -> Self {
+        NaiveLongInt { blocks: vec![] }
+    }
+}
 
 pub trait Numerical:
     Default + Clone + Copy + Debug

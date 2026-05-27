@@ -11,7 +11,7 @@ impl AnagramicSquares {
     }
 
     fn issq(x: u64) -> bool {
-        let rx = (x as f64).sqrt().floor() as u64;
+        let rx = x.isqrt();
         rx * rx == x
     }
 
@@ -22,7 +22,6 @@ impl AnagramicSquares {
 
             if Self::issq(w1v) && Self::issq(w2v) {
                 *ans = (*ans).max(w1v).max(w2v);
-                dbg!(ans, w1, w2);
             }
 
             return;
