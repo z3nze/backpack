@@ -1,4 +1,4 @@
-use std::{fmt::Debug, ops::{Add, AddAssign, BitAnd, BitAndAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Shl, ShlAssign, Shr, ShrAssign, Sub, SubAssign}};
+use std::{iter::repeat, fmt::Debug, ops::{Add, AddAssign, BitAnd, BitAndAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Shl, ShlAssign, Shr, ShrAssign, Sub, SubAssign}};
 
 pub trait LossyFromUsize {
     fn lf_usize(n: usize) -> Self;
@@ -43,6 +43,7 @@ impl NaiveLongInt {
 impl Mul for NaiveLongInt {
     type Output = NaiveLongInt;
 
+    #[allow(clippy::suspicious_arithmetic_impl)]
     fn mul(self, rhs: NaiveLongInt) -> Self {
         let a = &self.blocks;
         let b = &rhs.blocks;
@@ -51,17 +52,17 @@ impl Mul for NaiveLongInt {
         
         let mut blocks: Vec<u64> = vec![0; n * m + 1];
 
-        for i in 0 .. n {
-            for j in 0 .. m {
-                let uv = blocks[i * j] as u128 + (a[i] as u128) * (b[j] as u128);
-                let carry = uv >> 64;
-                let val = uv as u64;
-                blocks[i * j + 1] += carry as u64;
-                blocks[i * j] = val;
-            }
-        }
+        a.iter().enumerate().for_each(|(i, &ai)| {
+            b.iter().enumerate().for_each(|(j, &bj)| {
+                    let uv = blocks[i * j] as u128 + (ai as u128) * (bj as u128);
+                    let carry = uv >> 64;
+                    let val = uv as u64;
+                    blocks[i * j + 1] += carry as u64;
+                    blocks[i * j] = val;
+                })
+            });
 
-        if blocks.last().unwrap() == &0 && blocks.len() > 1 {
+        if let Some(last) = blocks.last() && *last == 0 && blocks.len() > 1 {
             blocks.pop();
         }
 
@@ -73,7 +74,25 @@ impl Add for NaiveLongInt {
     type Output = NaiveLongInt;
 
     fn add(self, rhs: NaiveLongInt) -> Self {
-        NaiveLongInt { blocks: vec![] }
+        let a = &self.blocks;
+        let b = &rhs.blocks;
+        let n = a.len();
+        let m = b.len();
+        let max_len = n.max(m) + 1;
+
+        let mut blocks: Vec<u64> = vec![0; max_len];
+        let mut carry: u64 = 0;
+
+        a.iter().chain(repeat(&0)).take(max_len)
+            .zip(b.iter().chain(repeat(&0)).take(max_len))
+            .zip(blocks.iter_mut())
+            .for_each(|((&ai, &bi), ref mut block_i)| {
+                let res: u128 = (**block_i as u128) + (ai as u128) * (bi as u128) + (carry as u128);
+                carry = (res >> 64) as u64;
+                **block_i = res as u64;
+            });
+
+        NaiveLongInt { blocks }
     }
 }
 
