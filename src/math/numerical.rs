@@ -1,4 +1,4 @@
-use std::{iter::repeat, fmt::Debug, ops::{Add, AddAssign, BitAnd, BitAndAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Shl, ShlAssign, Shr, ShrAssign, Sub, SubAssign}};
+use std::{iter::repeat, fmt::Debug, ops::{Add, AddAssign, BitAnd, BitAndAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Shl, ShlAssign, Shr, ShrAssign, Sub, SubAssign}};
 
 pub trait LossyFromUsize {
     fn lf_usize(n: usize) -> Self;
@@ -44,7 +44,7 @@ impl Mul for NaiveLongInt {
     type Output = NaiveLongInt;
 
     #[allow(clippy::suspicious_arithmetic_impl)]
-    fn mul(self, rhs: NaiveLongInt) -> Self {
+    fn mul(self, rhs: Self) -> Self::Output {
         let a = &self.blocks;
         let b = &rhs.blocks;
         let n = a.len();
@@ -73,7 +73,8 @@ impl Mul for NaiveLongInt {
 impl Add for NaiveLongInt {
     type Output = NaiveLongInt;
 
-    fn add(self, rhs: NaiveLongInt) -> Self {
+    #[allow(clippy::suspicious_arithmetic_impl)]
+    fn add(self, rhs: Self) -> Self::Output {
         let a = &self.blocks;
         let b = &rhs.blocks;
         let n = a.len();
@@ -93,6 +94,14 @@ impl Add for NaiveLongInt {
             });
 
         NaiveLongInt { blocks }
+    }
+}
+
+impl Div for NaiveLongInt {
+    type Output = NaiveLongInt;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        unimplemented!()
     }
 }
 
