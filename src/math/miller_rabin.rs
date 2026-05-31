@@ -39,10 +39,10 @@ pub fn check_composite<T: Integer>(n: T, a: T, d: T, s: usize) -> bool {
 }
 
 pub fn is_prime<T: Integer>(n: T, iter: usize) -> bool {
+    let _0 = T::lf_usize(0);
+    let _1 = T::lf_usize(1);
     let _2 = T::lf_usize(2);
     let _3 = T::lf_usize(3);
-    let _1 = T::lf_usize(1);
-    let _0 = T::lf_usize(0);
 
     if n < T::lf_usize(4) {
         return n == _2 || n == _3;
