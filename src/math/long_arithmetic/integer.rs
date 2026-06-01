@@ -8,7 +8,7 @@ pub struct Vanilla {
 impl Vanilla {
     pub fn new(n: u64) -> Self {
         Vanilla {
-            blocks: vec![n; 1]
+            blocks: vec![n]
         }
     }
 }
@@ -113,5 +113,48 @@ impl Ord for Vanilla {
         }
 
         Ordering::Equal
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_eq() {
+        let a = Vanilla {
+            blocks: vec![1, 1]
+        };
+        let a_prime = Vanilla {
+            blocks: vec![1, 1]
+        };
+        let b = Vanilla {
+            blocks: vec![1, 0, 2]
+        };
+
+        assert!(a == a);
+        assert_eq!(a == a_prime, a_prime == a);
+        assert_eq!(a == b, b == a);
+        assert!(a != b);
+        assert!(b != a);
+    }
+
+    #[test]
+    fn test_ord() {
+        let a = Vanilla {
+            blocks: vec![1, 1]
+        };
+        let b = Vanilla {
+            blocks: vec![1, 0, 2]
+        };
+        let c = Vanilla {
+            blocks: vec![1, 1, 0]
+        };
+
+        assert_eq!(a.cmp(&a), Ordering::Equal);
+        assert_eq!(a.cmp(&b), Ordering::Less);
+        assert_eq!(b.cmp(&a), Ordering::Greater);
+        assert!(a.cmp(&b) == b.cmp(&c) && a.cmp(&b) == a.cmp(&c) && a.cmp(&c) == b.cmp(&c));
     }
 }
