@@ -1,19 +1,20 @@
-use std::{iter::repeat, ops::{Add, Div, Mul}};
+use std::{cmp::Ordering, iter::repeat, ops::{Add, Div, Mul}};
 
-pub struct NaiveLongInt {
+#[derive(Debug, Clone)]
+pub struct Vanilla {
     blocks: Vec<u64>
 }
 
-impl NaiveLongInt {
+impl Vanilla {
     pub fn new(n: u64) -> Self {
-        NaiveLongInt {
+        Vanilla {
             blocks: vec![n; 1]
         }
     }
 }
 
-impl Mul for NaiveLongInt {
-    type Output = NaiveLongInt;
+impl Mul for Vanilla {
+    type Output = Self;
 
     #[allow(clippy::suspicious_arithmetic_impl)]
     fn mul(self, rhs: Self) -> Self::Output {
@@ -38,12 +39,12 @@ impl Mul for NaiveLongInt {
             blocks.pop();
         }
 
-        NaiveLongInt { blocks }
+        Vanilla { blocks }
     }
 }
 
-impl Add for NaiveLongInt {
-    type Output = NaiveLongInt;
+impl Add for Vanilla {
+    type Output = Self;
 
     #[allow(clippy::suspicious_arithmetic_impl)]
     fn add(self, rhs: Self) -> Self::Output {
@@ -65,14 +66,52 @@ impl Add for NaiveLongInt {
                 **block_i = res as u64;
             });
 
-        NaiveLongInt { blocks }
+        Vanilla { blocks }
     }
 }
 
-impl Div for NaiveLongInt {
-    type Output = NaiveLongInt;
+impl Div for Vanilla {
+    type Output = Self;
 
     fn div(self, _rhs: Self) -> Self::Output {
-        unimplemented!()
+        todo!()
+    }
+}
+
+impl PartialEq for Vanilla {
+    fn eq(&self, rhs: &Self) -> bool {
+        let a = &self.blocks;
+        let b = &rhs.blocks;
+        let n = a.len();
+        let m = b.len();
+
+        n == m && a.iter().zip(b.iter()).all(|(a_i, b_i)| a_i == b_i)
+    }
+}
+
+impl Eq for Vanilla {}
+
+impl PartialOrd for Vanilla {
+    fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
+        Some(self.cmp(rhs))
+    }
+}
+
+impl Ord for Vanilla {
+    fn cmp(&self, rhs: &Self) -> Ordering {
+        let a = &self.blocks;
+        let b = &rhs.blocks;
+        let n = a.len();
+        let m = b.len();
+
+        if n != m {
+            return n.cmp(&m);
+        }
+
+        if let Some(neq) = a.iter().zip(b.iter()).find(|(a_i, b_i)| a_i != b_i) {
+            return neq.0.cmp(neq.1);
+        }
+
+        Ordering::Equal
     }
 }

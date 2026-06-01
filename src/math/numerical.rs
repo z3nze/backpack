@@ -28,8 +28,6 @@ impl LossyFromUsize for f64 {
     }
 }
 
-
-
 pub trait Numerical:
     Default + Clone + Copy + Debug
     + PartialEq + PartialOrd
