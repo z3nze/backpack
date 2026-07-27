@@ -3,15 +3,15 @@ use crate::math::numerical::Numerical;
 
 pub struct LagrangeInterpolation<T>
 where
-    T: Numerical
+    T: Numerical,
 {
     x: Vec<T>,
     y: Vec<T>,
 }
 
 impl<T> LagrangeInterpolation<T>
-where 
-    T: Numerical
+where
+    T: Numerical,
 {
     pub fn new(v: &[(T, T)]) -> Self {
         LagrangeInterpolation {
@@ -23,52 +23,62 @@ where
     pub fn P(&self, x: T) -> T {
         let n = self.x.len();
         (0..n)
-            .map(|i| 
-                (0..i).chain(i + 1 .. n)
-                .map(|j| (x - self.x[j]) / (self.x[i] - self.x[j]))
-                .fold(T::lf_usize(1), |acc, v| acc * v) * self.y[i]
-            )
+            .map(|i| {
+                (0..i)
+                    .chain(i + 1..n)
+                    .map(|j| (x - self.x[j]) / (self.x[i] - self.x[j]))
+                    .fold(T::lf_usize(1), |acc, v| acc * v)
+                    * self.y[i]
+            })
             .fold(T::lf_usize(0), |acc, v| acc + v)
     }
 }
 
 pub struct LagrangeInterpolationBarycentric<T>
-where 
-    T: Numerical
+where
+    T: Numerical,
 {
     x: Vec<T>,
     w: Vec<T>,
     yw: Vec<T>,
 }
 
-impl <T> LagrangeInterpolationBarycentric<T>
-where 
-    T: Numerical
+impl<T> LagrangeInterpolationBarycentric<T>
+where
+    T: Numerical,
 {
     pub fn new(v: &[(T, T)]) -> Self {
         let x: Vec<T> = v.iter().map(|&(x, _)| x).collect::<Vec<_>>();
         let y: Vec<T> = v.iter().map(|&(_, y)| y).collect::<Vec<_>>();
         let n = x.len();
-        let w: Vec<T> = (0 .. n).map(|i| 
-            T::lf_usize(1) / (0..i).chain(i + 1 .. n)
-            .map(|j| x[i] - x[j])
-            .fold(T::lf_usize(1), |acc, v| acc * v)
-        ).collect::<Vec<_>>();
-        let yw: Vec<T> = y.iter().zip(w.iter()).map(|(&a, &b)| a * b).collect::<Vec<_>>();
+        let w: Vec<T> = (0..n)
+            .map(|i| {
+                T::lf_usize(1)
+                    / (0..i)
+                        .chain(i + 1..n)
+                        .map(|j| x[i] - x[j])
+                        .fold(T::lf_usize(1), |acc, v| acc * v)
+            })
+            .collect::<Vec<_>>();
+        let yw: Vec<T> = y
+            .iter()
+            .zip(w.iter())
+            .map(|(&a, &b)| a * b)
+            .collect::<Vec<_>>();
 
-        LagrangeInterpolationBarycentric  { x, w, yw }
+        LagrangeInterpolationBarycentric { x, w, yw }
     }
 
     pub fn P(&self, x: T) -> T {
         let n = self.x.len();
-        let nd = (0 .. n)
-            .map(|i| 
-                {
-                    let den: T = x - self.x[i];
-                    (self.yw[i] / den, self.w[i] / den)
-                }
-            )
-            .fold((T::lf_usize(0), T::lf_usize(0)), |(num, den), (a, b)| (num + a, den + b));
+        let nd = (0..n)
+            .map(|i| {
+                let den: T = x - self.x[i];
+                (self.yw[i] / den, self.w[i] / den)
+            })
+            .fold((T::lf_usize(0), T::lf_usize(0)), |(num, den), (a, b)| {
+                (num + a, den + b)
+            });
         nd.0 / nd.1
     }
 }

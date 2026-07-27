@@ -74,7 +74,7 @@ impl Div for Vanilla {
     type Output = Self;
 
     fn div(self, _rhs: Self) -> Self::Output {
-        todo!()
+        unimplemented!()
     }
 }
 
