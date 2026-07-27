@@ -18,13 +18,18 @@ pub fn is_special_sum_set(vs: &[usize]) -> bool {
     })
 }
 
-pub fn special_sum_sets(n: usize) -> Vec<usize> {
+pub fn find_special_sum_set(n: usize) -> Vec<usize> {
     let candidates = (1..=n).fold(vec![vec![]; 1], |acc: Vec<Vec<usize>>, _| {
         acc.iter()
             .flat_map(|set: &Vec<usize>| {
-                let next_val: usize = *set.last().unwrap_or(&1);
+                let next_val: usize = *set.last().unwrap_or(&0) + 1;
+                let ubound = if set.len() >= 2 {
+                    set.iter().take(2).sum()
+                } else {
+                    50
+                };
 
-                (next_val..=50).fold(
+                (next_val..=ubound).fold(
                     Vec::new(),
                     |mut set_expansions: Vec<Vec<usize>>, inserted_val| {
                         let mut expansion = set.clone();
@@ -51,10 +56,16 @@ mod tests {
     use super::*;
 
     #[test]
+    pub fn test_is_special_sum_set() {
+        assert!(is_special_sum_set(&vec![3, 5, 6, 7]));
+        assert!(!is_special_sum_set(&vec![1, 2, 3, 4]));
+    }
+
+    #[test]
     pub fn test_special_sum_sets() {
-        assert_eq!(special_sum_sets(1), vec![1]);
-        assert_eq!(special_sum_sets(2), vec![1, 2]);
-        assert_eq!(special_sum_sets(3), vec![2, 3, 4]);
-        assert_eq!(special_sum_sets(4), vec![3, 5, 6, 7]);
+        assert_eq!(find_special_sum_set(1), vec![1]);
+        assert_eq!(find_special_sum_set(2), vec![1, 2]);
+        assert_eq!(find_special_sum_set(3), vec![2, 3, 4]);
+        assert_eq!(find_special_sum_set(4), vec![3, 5, 6, 7]);
     }
 }
