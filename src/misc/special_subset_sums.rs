@@ -1,21 +1,70 @@
 pub fn is_special_sum_set(vs: &[usize]) -> bool {
     let n = vs.len();
-    let params: Vec<(usize, usize)> = (0..(1 << n))
-        .map(|mask| {
-            vs.iter()
+    (0..(1 << n))
+        .map(|mask: usize| {
+            let b_sum: usize = vs
+                .iter()
                 .enumerate()
-                .fold((0, 0), |(count, sum), (bit_i, v)| {
-                    let bit = (mask >> bit_i) & 1;
-                    (count + bit, sum + v * bit)
+                .filter_map(|(bit_i, v)| {
+                    if (mask >> bit_i) & 1 == 1 {
+                        Some(v)
+                    } else {
+                        None
+                    }
                 })
-        })
-        .collect::<Vec<_>>();
+                .sum();
+            let b_count: usize = mask.count_ones() as usize;
 
-    params.iter().enumerate().all(|(i, p1)| {
-        params.iter().enumerate().all(|(j, p2)| {
-            (i == j) || (p1.1 != p2.1 && (p1.0 == p2.0 || ((p1.0 > p2.0) == (p1.1 > p2.1))))
+            if b_count == 0 {
+                return true;
+            }
+
+            let rem = vs
+                .iter()
+                .enumerate()
+                .filter_map(|(bit_i, &v)| {
+                    if (mask >> bit_i) & 1 == 0 {
+                        Some(v)
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>();
+
+            let m = n - b_count;
+
+            (0..(1 << m))
+                .map(|inner_mask: usize| {
+                    let c_sum: usize = rem
+                        .iter()
+                        .enumerate()
+                        .filter_map(|(bit_i, v)| {
+                            if (inner_mask >> bit_i) & 1 == 1 {
+                                Some(v)
+                            } else {
+                                None
+                            }
+                        })
+                        .sum();
+                    let c_count = inner_mask.count_ones() as usize;
+
+                    if c_count == 0 {
+                        return true;
+                    }
+
+                    if b_sum == c_sum {
+                        return false;
+                    }
+
+                    if b_count > c_count && b_sum < c_sum {
+                        return false;
+                    }
+
+                    return true;
+                })
+                .all(|x| x)
         })
-    })
+        .all(|x| x)
 }
 
 pub fn find_special_sum_set(n: usize) -> Vec<usize> {
