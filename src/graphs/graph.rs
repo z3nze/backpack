@@ -3,6 +3,9 @@ pub struct Edge {
     from: usize,
     to: usize,
     weight: Option<usize>,
+    capacity: Option<usize>,
+    cost: Option<usize>,
+    flow: Option<usize>,
 }
 
 impl Edge {
@@ -11,6 +14,9 @@ impl Edge {
             from: from,
             to: to,
             weight: None,
+            capacity: None,
+            cost: None,
+            flow: None,
         }
     }
 
@@ -19,6 +25,9 @@ impl Edge {
             from: from,
             to: to,
             weight: Some(weight),
+            capacity: None,
+            cost: None,
+            flow: None,
         }
     }
 
@@ -32,5 +41,17 @@ impl Edge {
 
     pub fn weight(&self) -> Option<usize> {
         self.weight
+    }
+
+    pub fn capacity(&self) -> Option<usize> {
+        self.capacity
+    }
+
+    pub fn cost(&self) -> Option<usize> {
+        self.cost
+    }
+
+    pub fn flow(&self) -> Option<usize> {
+        self.flow
     }
 }

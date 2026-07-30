@@ -4,8 +4,15 @@ version = "0.1.0"
 edition = "2024"
 default-run = "main"
 
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "./src/html/docs-header.html" ]
+
 [dependencies]
 criterion = "0.5"
+include_display_mode_tex = { version = "0.1.5", optional = true }
+
+[features]
+doc = ["include_display_mode_tex"]
 
 [[bench]]
 name = "sieve_bench"
