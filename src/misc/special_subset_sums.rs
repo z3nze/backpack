@@ -2,7 +2,7 @@
 //!
 //! $\forall B \in A, C \in A: B \neq \varnothing, C \neq \varnothing, B \cap C = \varnothing$:
 //! 1. $\sum{B} \neq \sum{C}$
-//! 2. $|B| > |C| \Longrightarrow \sum{B} > \sum{C}$
+//! 2. $|B| > |C| \implies \sum{B} > \sum{C}$
 
 /// Checks that given set is a special sum set.
 pub fn is_special_sum_set(vs: &[usize]) -> bool {
