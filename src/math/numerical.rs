@@ -1,4 +1,10 @@
-use std::{fmt::Debug, ops::{Add, AddAssign, BitAnd, BitAndAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Shl, ShlAssign, Shr, ShrAssign, Sub, SubAssign}};
+use std::{
+    fmt::Debug,
+    ops::{
+        Add, AddAssign, BitAnd, BitAndAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Shl,
+        ShlAssign, Shr, ShrAssign, Sub, SubAssign,
+    },
+};
 
 pub trait LossyFromUsize {
     fn lf_usize(n: usize) -> Self;
@@ -28,48 +34,76 @@ impl LossyFromUsize for f64 {
     }
 }
 
+impl LossyFromUsize for usize {
+    fn lf_usize(n: usize) -> Self {
+        n as usize
+    }
+}
+
 pub trait Numerical:
-    Default + Clone + Copy + Debug
-    + PartialEq + PartialOrd
-    + Add<Output = Self> + AddAssign
-    + Sub<Output = Self> + SubAssign
-    + Mul<Output = Self> + MulAssign
-    + Div<Output = Self> + DivAssign
+    Default
+    + Clone
+    + Copy
+    + Debug
+    + PartialEq
+    + PartialOrd
+    + Add<Output = Self>
+    + AddAssign
+    + Sub<Output = Self>
+    + SubAssign
+    + Mul<Output = Self>
+    + MulAssign
+    + Div<Output = Self>
+    + DivAssign
     + LossyFromUsize
 {
 }
 
-
-impl<U> Numerical for U
-where
-    U:
-        Default + Clone + Copy + Debug
-        + PartialEq + PartialOrd
-        + Add<Output = Self> + AddAssign
-        + Sub<Output = Self> + SubAssign
-        + Mul<Output = Self> + MulAssign
-        + Div<Output = Self> + DivAssign
+impl<U> Numerical for U where
+    U: Default
+        + Clone
+        + Copy
+        + Debug
+        + PartialEq
+        + PartialOrd
+        + Add<Output = Self>
+        + AddAssign
+        + Sub<Output = Self>
+        + SubAssign
+        + Mul<Output = Self>
+        + MulAssign
+        + Div<Output = Self>
+        + DivAssign
         + LossyFromUsize
-{}
-
+{
+}
 
 pub trait Integer:
     Numerical
-    + Eq + Ord
-    + Shr<Output = Self> + ShrAssign
-    + Shl<Output = Self> + ShlAssign
-    + BitAnd<Output = Self> + BitAndAssign
-    + Rem<Output = Self> + RemAssign
-{}
+    + Eq
+    + Ord
+    + Shr<Output = Self>
+    + ShrAssign
+    + Shl<Output = Self>
+    + ShlAssign
+    + BitAnd<Output = Self>
+    + BitAndAssign
+    + Rem<Output = Self>
+    + RemAssign
+{
+}
 
-
-impl<U> Integer for U
-where 
-    U:
-        Numerical
-        + Eq + Ord
-        + Shr<Output = Self> + ShrAssign
-        + Shl<Output = Self> + ShlAssign
-        + BitAnd<Output = Self> + BitAndAssign
-        + Rem<Output = Self> + RemAssign
-{}
+impl<U> Integer for U where
+    U: Numerical
+        + Eq
+        + Ord
+        + Shr<Output = Self>
+        + ShrAssign
+        + Shl<Output = Self>
+        + ShlAssign
+        + BitAnd<Output = Self>
+        + BitAndAssign
+        + Rem<Output = Self>
+        + RemAssign
+{
+}
