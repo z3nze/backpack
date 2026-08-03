@@ -1,14 +1,59 @@
-use std::{cmp::Ordering, iter::repeat, ops::{Add, Div, Mul}};
+use std::{cmp::Ordering, iter::repeat, ops::{Add, Sub, Div, Mul, Neg}};
 
 #[derive(Debug, Clone)]
 pub struct Vanilla {
+    neg: bool,
     blocks: Vec<u64>
 }
 
 impl Vanilla {
     pub fn new(n: u64) -> Self {
         Vanilla {
-            blocks: vec![n]
+            neg: false,
+            blocks: vec![n],
+        }
+    }
+
+    pub fn abs(&self) -> Self {
+        Vanilla {
+            neg: false,
+            blocks: self.blocks.clone(),
+        }
+    }
+
+    fn add_positive(&self, rhs: Self) -> Self {
+        let a = &self.blocks;
+        let b = &rhs.blocks;
+        let n = a.len();
+        let m = b.len();
+        let max_len = n.max(m) + 1;
+
+        let mut blocks: Vec<u64> = vec![0; max_len];
+        let mut carry: u64 = 0;
+
+        a.iter().chain(repeat(&0)).take(max_len)
+            .zip(b.iter().chain(repeat(&0)).take(max_len))
+            .zip(blocks.iter_mut())
+            .for_each(|((&ai, &bi), ref mut block_i)| {
+                let res: u128 = (**block_i as u128) + (ai as u128) * (bi as u128) + (carry as u128);
+                carry = (res >> 64) as u64;
+                **block_i = res as u64;
+            });
+
+        Vanilla {
+            neg: false,
+            blocks: blocks,
+        }
+    }
+}
+
+impl Neg for Vanilla {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Vanilla {
+            neg: !self.neg,
+            blocks: self.blocks.clone(),
         }
     }
 }
@@ -39,7 +84,10 @@ impl Mul for Vanilla {
             blocks.pop();
         }
 
-        Vanilla { blocks }
+        Vanilla {
+            neg: self.neg != rhs.neg,
+            blocks: blocks
+        }
     }
 }
 
@@ -48,25 +96,26 @@ impl Add for Vanilla {
 
     #[allow(clippy::suspicious_arithmetic_impl)]
     fn add(self, rhs: Self) -> Self::Output {
-        let a = &self.blocks;
-        let b = &rhs.blocks;
-        let n = a.len();
-        let m = b.len();
-        let max_len = n.max(m) + 1;
+        if !self.neg && !rhs.neg {
+            return self.add_positive(rhs);
+        }
+        if self.neg && rhs.neg {
+            let res = self.abs().add_positive(rhs.abs());
+            return res.neg();
+        }
+        if !self.neg && rhs.neg {
+            return self.sub(rhs);
+        }
+        return rhs.sub(self);
+    }
+}
 
-        let mut blocks: Vec<u64> = vec![0; max_len];
-        let mut carry: u64 = 0;
+impl Sub for Vanilla {
+    type Output = Self;
 
-        a.iter().chain(repeat(&0)).take(max_len)
-            .zip(b.iter().chain(repeat(&0)).take(max_len))
-            .zip(blocks.iter_mut())
-            .for_each(|((&ai, &bi), ref mut block_i)| {
-                let res: u128 = (**block_i as u128) + (ai as u128) * (bi as u128) + (carry as u128);
-                carry = (res >> 64) as u64;
-                **block_i = res as u64;
-            });
-
-        Vanilla { blocks }
+    #[allow(clippy::suspicious_arithmetic_impl)]
+    fn sub(self, rhs: Self) -> Self::Output {
+        unimplemented!()
     }
 }
 
@@ -74,6 +123,12 @@ impl Div for Vanilla {
     type Output = Self;
 
     fn div(self, _rhs: Self) -> Self::Output {
+        let base: u128 = 1u128 << 64;
+        let d_last = *_rhs.blocks.last().unwrap();
+        let f = base.div_ceil(d_last as u128) as u64;
+
+        let a_prime = self * Self::new(f);
+        let d_prime = _rhs * Self::new(f);
         unimplemented!()
     }
 }
@@ -124,12 +179,15 @@ mod tests {
     #[test]
     fn test_eq() {
         let a = Vanilla {
-            blocks: vec![1, 1]
+            neg: false,
+            blocks: vec![1, 1],
         };
         let a_prime = Vanilla {
-            blocks: vec![1, 1]
+            neg: false,
+            blocks: vec![1, 1],
         };
         let b = Vanilla {
+            neg: false,
             blocks: vec![1, 0, 2]
         };
 
@@ -143,12 +201,15 @@ mod tests {
     #[test]
     fn test_ord() {
         let a = Vanilla {
+            neg: false,
             blocks: vec![1, 1]
         };
         let b = Vanilla {
+            neg: false,
             blocks: vec![1, 0, 2]
         };
         let c = Vanilla {
+            neg: false,
             blocks: vec![1, 1, 0]
         };
 
