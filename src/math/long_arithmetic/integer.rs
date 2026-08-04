@@ -7,10 +7,17 @@ pub struct Vanilla {
 }
 
 impl Vanilla {
-    pub fn new(n: u64) -> Self {
+    pub fn from_u64(n: u64) -> Self {
         Vanilla {
             neg: false,
             blocks: vec![n],
+        }
+    }
+
+    pub fn from_i64(n: i64) -> Self {
+        Vanilla {
+            neg: n < 0,
+            blocks: vec![n.abs() as u64],
         }
     }
 
@@ -21,29 +28,61 @@ impl Vanilla {
         }
     }
 
-    fn add_positive(&self, rhs: Self) -> Self {
+    fn add_small_to_large(&self, rhs: Self) -> Self {
+        let base: i128 = 1i128 << 64;
+        let mut a = self;
+        let mut b = &rhs;
+
+        let mut n = a.blocks.len();
+        let mut m = b.blocks.len();
+        let max_len = n.max(m) + 1;
+
+        if a.abs() < b.abs() {
+            (a, b) = (b, a);
+            (n, m) = (m, n);
+        }
+
+        let b_sign: i128 = if a.neg != b.neg { -1 } else { 1 };
+        let neg: bool = a.neg;
+
+
+        let mut blocks: Vec<u64> = vec![0; max_len];
+        let mut carry: i64 = 0;
+
+        a.blocks.iter().chain(repeat(&0)).take(max_len)
+            .zip(b.blocks.iter().chain(repeat(&0)).take(max_len))
+            .zip(blocks.iter_mut())
+            .for_each(|((&ai, &bi), ref mut block_i)| {
+                let res: i128 = (**block_i as i128) + (ai as i128) + b_sign * (bi as i128) + (carry as i128);
+                carry = (res.div_euclid(base)) as i64;
+                **block_i = res.rem_euclid(base) as u64;
+            });
+
+        if blocks.len() > 1 && blocks.last().unwrap() == &0 {
+            blocks.pop();
+        }
+
+        Vanilla {
+            neg: neg,
+            blocks: blocks,
+        }
+    }
+
+    fn cmp_abs(&self, rhs: &Self) -> Ordering {
         let a = &self.blocks;
         let b = &rhs.blocks;
         let n = a.len();
         let m = b.len();
-        let max_len = n.max(m) + 1;
 
-        let mut blocks: Vec<u64> = vec![0; max_len];
-        let mut carry: u64 = 0;
-
-        a.iter().chain(repeat(&0)).take(max_len)
-            .zip(b.iter().chain(repeat(&0)).take(max_len))
-            .zip(blocks.iter_mut())
-            .for_each(|((&ai, &bi), ref mut block_i)| {
-                let res: u128 = (**block_i as u128) + (ai as u128) * (bi as u128) + (carry as u128);
-                carry = (res >> 64) as u64;
-                **block_i = res as u64;
-            });
-
-        Vanilla {
-            neg: false,
-            blocks: blocks,
+        if n != m {
+            return n.cmp(&m);
         }
+
+        if let Some(neq) = a.iter().zip(b.iter()).find(|(a_i, b_i)| a_i != b_i) {
+            return neq.0.cmp(neq.1);
+        }
+
+        Ordering::Equal
     }
 }
 
@@ -96,17 +135,7 @@ impl Add for Vanilla {
 
     #[allow(clippy::suspicious_arithmetic_impl)]
     fn add(self, rhs: Self) -> Self::Output {
-        if !self.neg && !rhs.neg {
-            return self.add_positive(rhs);
-        }
-        if self.neg && rhs.neg {
-            let res = self.abs().add_positive(rhs.abs());
-            return res.neg();
-        }
-        if !self.neg && rhs.neg {
-            return self.sub(rhs);
-        }
-        return rhs.sub(self);
+        self.add_small_to_large(rhs)
     }
 }
 
@@ -115,7 +144,7 @@ impl Sub for Vanilla {
 
     #[allow(clippy::suspicious_arithmetic_impl)]
     fn sub(self, rhs: Self) -> Self::Output {
-        unimplemented!()
+        self.add_small_to_large(rhs.neg())
     }
 }
 
@@ -127,8 +156,10 @@ impl Div for Vanilla {
         let d_last = *_rhs.blocks.last().unwrap();
         let f = base.div_ceil(d_last as u128) as u64;
 
-        let a_prime = self * Self::new(f);
-        let d_prime = _rhs * Self::new(f);
+        let a_prime = self * Self::from_u64(f);
+        let d_prime = _rhs * Self::from_u64(f);
+
+        let mut rem = a_prime;
         unimplemented!()
     }
 }
@@ -140,7 +171,7 @@ impl PartialEq for Vanilla {
         let n = a.len();
         let m = b.len();
 
-        n == m && a.iter().zip(b.iter()).all(|(a_i, b_i)| a_i == b_i)
+        n == m && self.neg == rhs.neg && a.iter().zip(b.iter()).all(|(a_i, b_i)| a_i == b_i)
     }
 }
 
@@ -154,20 +185,12 @@ impl PartialOrd for Vanilla {
 
 impl Ord for Vanilla {
     fn cmp(&self, rhs: &Self) -> Ordering {
-        let a = &self.blocks;
-        let b = &rhs.blocks;
-        let n = a.len();
-        let m = b.len();
-
-        if n != m {
-            return n.cmp(&m);
+        match (self.neg, rhs.neg) {
+            (false, true) => Ordering::Greater,
+            (true, false) => Ordering::Less,
+            (true, true) => self.cmp_abs(rhs).reverse(),
+            (false, false) => self.cmp_abs(rhs),
         }
-
-        if let Some(neq) = a.iter().zip(b.iter()).find(|(a_i, b_i)| a_i != b_i) {
-            return neq.0.cmp(neq.1);
-        }
-
-        Ordering::Equal
     }
 }
 
