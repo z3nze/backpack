@@ -30,17 +30,9 @@ impl Vanilla {
 
     fn add_small_to_large(&self, rhs: Self) -> Self {
         let base: i128 = 1i128 << 64;
-        let mut a = self;
-        let mut b = &rhs;
-
-        let mut n = a.blocks.len();
-        let mut m = b.blocks.len();
+        let (a, b) = if self.abs() > rhs.abs() { (self, &rhs) } else { (&rhs, self) };
+        let (n, m) = (a.blocks.len(), b.blocks.len());
         let max_len = n.max(m) + 1;
-
-        if a.abs() < b.abs() {
-            (a, b) = (b, a);
-            (n, m) = (m, n);
-        }
 
         let b_sign: i128 = if a.neg != b.neg { -1 } else { 1 };
         let neg: bool = a.neg;
@@ -69,10 +61,8 @@ impl Vanilla {
     }
 
     fn cmp_abs(&self, rhs: &Self) -> Ordering {
-        let a = &self.blocks;
-        let b = &rhs.blocks;
-        let n = a.len();
-        let m = b.len();
+        let (a, b) = (&self.blocks, &rhs.blocks);
+        let (n, m) = (a.len(), b.len());
 
         if n != m {
             return n.cmp(&m);
@@ -156,8 +146,7 @@ impl Div for Vanilla {
         let d_last = *_rhs.blocks.last().unwrap();
         let f = base.div_ceil(d_last as u128) as u64;
 
-        let a_prime = self * Self::from_u64(f);
-        let d_prime = _rhs * Self::from_u64(f);
+        let (a_prime, d_prime) = (self * Self::from_u64(f), _rhs * Self::from_u64(f));
 
         let mut rem = a_prime;
         unimplemented!()
