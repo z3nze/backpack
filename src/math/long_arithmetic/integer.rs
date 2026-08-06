@@ -224,10 +224,16 @@ mod tests {
             neg: false,
             blocks: vec![1, 1, 0]
         };
+        let d = Vanilla {
+            neg: true,
+            blocks: vec![1, 1]
+        };
 
         assert_eq!(a.cmp(&a), Ordering::Equal);
         assert_eq!(a.cmp(&b), Ordering::Less);
         assert_eq!(b.cmp(&a), Ordering::Greater);
+        assert_eq!(a.cmp(&d), Ordering::Greater);
+        assert_eq!(d.cmp(&c), Ordering::Less);
         assert!(a.cmp(&b) == b.cmp(&c) && a.cmp(&b) == a.cmp(&c) && a.cmp(&c) == b.cmp(&c));
     }
 }
