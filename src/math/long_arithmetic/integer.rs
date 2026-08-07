@@ -60,6 +60,12 @@ impl Vanilla {
         }
     }
 
+    fn enforce_sign(&mut self) {
+        if self.blocks.len() == 1 && self.blocks[0] == 0 {
+            self.neg = false
+        }
+    }
+
     fn cmp_abs(&self, rhs: &Self) -> Ordering {
         let (a, b) = (&self.blocks, &rhs.blocks);
         let (n, m) = (a.len(), b.len());
