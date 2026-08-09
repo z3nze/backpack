@@ -10,7 +10,7 @@ pub struct Scanner {
 
 impl Scanner {
     pub fn read<T>(&mut self) -> T
-    where 
+    where
         T: FromStr,
         <T as FromStr>::Err: Debug,
     {
@@ -18,7 +18,8 @@ impl Scanner {
             let mut buf: Vec<u8> = vec![];
             buf.clear();
             std::io::stdin().lock().read_to_end(&mut buf).unwrap();
-            self.tokens = String::from_utf8(buf).unwrap()
+            self.tokens = String::from_utf8(buf)
+                .unwrap()
                 .split_whitespace()
                 .map(|s| s.to_string())
                 .collect();

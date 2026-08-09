@@ -9,7 +9,6 @@ pub fn prod<'a, T>(xs: &'a [T], ys: &'a [T]) -> Vec<(&'a T, &'a T)> {
     res
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -19,8 +18,24 @@ mod tests {
         let a: Vec<i64> = vec![10, 20, 30];
         let b: Vec<i64> = vec![50, 60, 70];
 
-        let expect: Vec<(i64, i64)> = vec![(10, 50), (10, 60), (10, 70), (20, 50), (20, 60), (20, 70), (30, 50), (30, 60), (30, 70)];
+        let expect: Vec<(i64, i64)> = vec![
+            (10, 50),
+            (10, 60),
+            (10, 70),
+            (20, 50),
+            (20, 60),
+            (20, 70),
+            (30, 50),
+            (30, 60),
+            (30, 70),
+        ];
 
-        assert_eq!(prod(&a, &b).iter().map(|(x, y)| (**x, **y)).collect::<Vec<(i64, i64)>>(), expect);
+        assert_eq!(
+            prod(&a, &b)
+                .iter()
+                .map(|(x, y)| (**x, **y))
+                .collect::<Vec<(i64, i64)>>(),
+            expect
+        );
     }
 }

@@ -1,8 +1,8 @@
+use crate::misc::util;
 use std::collections::HashMap;
-use super::util;
 
 pub struct AnagramicSquares {
-    words: Vec<String>
+    words: Vec<String>,
 }
 
 impl AnagramicSquares {
@@ -15,10 +15,23 @@ impl AnagramicSquares {
         rx * rx == x
     }
 
-    fn aux2(cv: &[char], ctoi: &mut HashMap<char, u8>, used: u16, w1: &String, w2: &String, ans: &mut u64) {
+    fn aux2(
+        cv: &[char],
+        ctoi: &mut HashMap<char, u8>,
+        used: u16,
+        w1: &String,
+        w2: &String,
+        ans: &mut u64,
+    ) {
         if cv.is_empty() {
-            let w1v: u64 = w1.chars().map(|c| ctoi.get(&c).unwrap()).fold(0, |acc, &x| acc * 10 + x as u64);
-            let w2v: u64 = w2.chars().map(|c| ctoi.get(&c).unwrap()).fold(0, |acc, &x| acc * 10 + x as u64);
+            let w1v: u64 = w1
+                .chars()
+                .map(|c| ctoi.get(&c).unwrap())
+                .fold(0, |acc, &x| acc * 10 + x as u64);
+            let w2v: u64 = w2
+                .chars()
+                .map(|c| ctoi.get(&c).unwrap())
+                .fold(0, |acc, &x| acc * 10 + x as u64);
 
             if Self::issq(w1v) && Self::issq(w2v) {
                 *ans = (*ans).max(w1v).max(w2v);
@@ -29,10 +42,13 @@ impl AnagramicSquares {
 
         for nv in 0..10 {
             if (1 << nv) & used == (1 << nv) {
-                continue
+                continue;
             }
-            if nv == 0 && (*cv.first().unwrap() == w1.chars().next().unwrap() || *cv.first().unwrap() == w2.chars().next().unwrap()) {
-                continue
+            if nv == 0
+                && (*cv.first().unwrap() == w1.chars().next().unwrap()
+                    || *cv.first().unwrap() == w2.chars().next().unwrap())
+            {
+                continue;
             }
             ctoi.insert(*cv.first().unwrap(), nv);
             Self::aux2(&cv[1..], ctoi, used | (1 << nv), w1, w2, ans);
@@ -59,17 +75,19 @@ impl AnagramicSquares {
             gr.entry(ws).or_default().push(word.to_string());
         }
 
-        let ans: u64 = gr.iter()
+        let ans: u64 = gr
+            .iter()
             .filter(|(_, words)| words.len() >= 2)
             .map(|(gk, words)| {
-                util::prod(words, words).iter()
+                util::prod(words, words)
+                    .iter()
                     .filter(|(w1, w2)| w1 != w2)
                     .map(|(w1, w2)| Self::aux1(gk.to_string(), w1, w2))
                     .max()
                     .unwrap_or(0)
-                }
-            )
-            .max().unwrap();
+            })
+            .max()
+            .unwrap();
         println!("{ans}");
     }
 }

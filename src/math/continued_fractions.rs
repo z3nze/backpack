@@ -5,7 +5,6 @@ pub struct QuadraticIrrational {
     a: Vec<i64>,
 }
 
-
 // Simple continued fraction algo.
 impl QuadraticIrrational {
     pub fn new(d: i64) -> Self {
@@ -30,7 +29,7 @@ impl QuadraticIrrational {
             d_k = d_nk;
         }
 
-        QuadraticIrrational{ _d: d, a }
+        QuadraticIrrational { _d: d, a }
     }
 
     pub fn period_length(&self) -> usize {
