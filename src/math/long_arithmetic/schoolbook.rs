@@ -37,17 +37,17 @@ pub(super) fn add_signed_small_to_large_bu64(
 }
 
 pub(super) fn multiply_bu64(lhs: &Vec<u64>, rhs: &Vec<u64>) -> Vec<u64> {
+    let base: u128 = 1u128 << 64;
     let (n, m) = (lhs.len(), rhs.len());
 
-    let mut blocks: Vec<u64> = vec![0; n * m + 1];
+    let mut blocks: Vec<u128> = vec![0; n + m + 1];
 
     lhs.iter().enumerate().for_each(|(i, &ai)| {
         rhs.iter().enumerate().for_each(|(j, &bj)| {
-            let uv = blocks[i * j] as u128 + (ai as u128) * (bj as u128);
-            let carry = uv >> 64;
-            let val = uv as u64;
-            blocks[i * j + 1] += carry as u64;
-            blocks[i * j] = val;
+            let uv = blocks[i + j] + (ai as u128) * (bj as u128);
+            let (carry, val) = (uv / base, uv % base);
+            blocks[i + j + 1] += carry;
+            blocks[i + j] = val;
         })
     });
 
@@ -56,7 +56,10 @@ pub(super) fn multiply_bu64(lhs: &Vec<u64>, rhs: &Vec<u64>) -> Vec<u64> {
     {
         blocks.pop();
     }
-    blocks
+
+    assert!(blocks.iter().all(|&x| x < base));
+
+    blocks.iter().map(|&x| x as u64).collect::<Vec<_>>()
 }
 
 pub(super) fn cmp(lhs: &Vec<u64>, rhs: &Vec<u64>) -> Ordering {
@@ -82,22 +85,28 @@ fn divide_by_single_digit_bu64(lhs: &Vec<u64>, rhs: u64) -> (Vec<u64>, u64) {
     let mut q = vec![0; n];
     let mut carry = 0;
 
-    for i in (0..n - 1).rev() {
+    for i in (0..n).rev() {
         let t = carry * base + a[i];
         q[i] = (t / d) as u64;
         carry = t % d;
     }
 
+    while let Some(last) = q.last()
+        && *last == 0
+    {
+        q.pop();
+    }
+
     (q, carry as u64)
 }
 
-pub(super) fn divide_bu64(lhs: &Vec<u64>, rhs: &Vec<u64>) -> (Vec<u64>, Vec<u64>) {
+pub(super) fn divide_by_multidigit_bu64(lhs: &Vec<u64>, rhs: &Vec<u64>) -> (Vec<u64>, Vec<u64>) {
     let base: u128 = 1u128 << 64;
     let _a = lhs.iter().map(|&x| x as u128).collect::<Vec<_>>();
     let d = rhs.iter().map(|&x| x as u128).collect::<Vec<_>>();
     let (n, m) = (lhs.len(), rhs.len());
 
-    let f = base.div_ceil(d[m - 1]);
+    let f = base / (d[m - 1] + 1);
 
     let a_prime = multiply_bu64(lhs, &vec![f as u64]);
     let d_prime = multiply_bu64(rhs, &vec![f as u64]);
@@ -107,24 +116,24 @@ pub(super) fn divide_bu64(lhs: &Vec<u64>, rhs: &Vec<u64>) -> (Vec<u64>, Vec<u64>
 
     for j in (0..=n - m).rev() {
         let base_j = [vec![0; j], vec![1]].concat();
-        let (lf, rg) = (j, (j + m + 1).min(n));
-        let u: Vec<u128> = rem[lf..rg]
-            .iter()
-            .chain(repeat(&0).take(m + 1 - (rg - lf + 1)))
-            .map(|&x| x as u128)
-            .collect::<Vec<_>>();
+        let (lf, rg) = (j, j + m + 1);
+        let u = &rem[lf..rg];
+        let u_m = u[m] as u128;
+        let u_m_1 = u[m - 1] as u128;
+        let d_prime_m_1 = d_prime[m - 1] as u128;
 
-        let mut q_hat = ((u[m] * base + u[m - 1]) / d[m - 1]).min(base - 1);
-        while q_hat * (d[m - 1] * base + d[m - 2]) > (u[m] * base + u[m - 1]) * base + u[m - 2] {
+        let mut q_hat = ((u_m * base + u_m_1) / d_prime_m_1).min(base - 1) as u64;
+        let d_msd2 = vec![d_prime[m - 2], d_prime[m - 1]];
+        let u_msd3 = vec![u[m - 2], u[m - 1], u[m]];
+        while cmp(&multiply_bu64(&vec![q_hat], &d_msd2), &u_msd3) == Ordering::Greater {
             q_hat -= 1;
         }
 
-        let mut scaled_divisor =
-            multiply_bu64(&multiply_bu64(&vec![q_hat as u64], &d_prime), &base_j);
+        let mut scaled_divisor = multiply_bu64(&multiply_bu64(&vec![q_hat], &d_prime), &base_j);
 
         if cmp(&rem, &scaled_divisor) == Ordering::Less {
             q_hat -= 1;
-            scaled_divisor = multiply_bu64(&multiply_bu64(&vec![q_hat as u64], &d_prime), &base_j)
+            scaled_divisor = multiply_bu64(&multiply_bu64(&vec![q_hat], &d_prime), &base_j)
         }
 
         rem = add_signed_small_to_large_bu64(&rem, &scaled_divisor, Sign::NEGATIVE);
@@ -132,9 +141,71 @@ pub(super) fn divide_bu64(lhs: &Vec<u64>, rhs: &Vec<u64>) -> (Vec<u64>, Vec<u64>
         q[j] = q_hat;
     }
 
-    let rdiv = q.iter().map(|&x| x as u64).collect::<Vec<_>>();
-    let rrem =
+    let r =
         divide_by_single_digit_bu64(&rem.iter().map(|&x| x as u64).collect::<Vec<_>>(), f as u64).0;
 
-    (rdiv, rrem)
+    (q, r)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    pub fn test_add_signed_small_to_large_bu64() {
+        let a: Vec<u64> = vec![12385590235067398802, 6574815786672150605, 58256762939999093];
+        let b: Vec<u64> = vec![3120745040343772444, 127234219];
+        let expected_s: Vec<u64> =
+            vec![15506335275411171246, 6574815786799384824, 58256762939999093];
+        let expected_d: Vec<u64> =
+            vec![9264845194723626358, 6574815786544916386, 58256762939999093];
+
+        let actual_s = add_signed_small_to_large_bu64(&a, &b, Sign::POSITIVE);
+        let actual_d = add_signed_small_to_large_bu64(&a, &b, Sign::NEGATIVE);
+
+        assert_eq!(expected_s, actual_s);
+        assert_eq!(expected_d, actual_d);
+    }
+
+    #[test]
+    pub fn test_multiply_bu64() {
+        let a: Vec<u64> = vec![12385590235067398802, 6574815786672150605, 58256762939999093];
+        let b: Vec<u64> = vec![3120745040343772444, 127234219];
+        let expected_m: Vec<u64> = vec![
+            11227472973818958328,
+            5766268126233520549,
+            12295967375701953908,
+            1487040672093967956,
+            401819,
+        ];
+
+        let actual_m = multiply_bu64(&a, &b);
+        assert_eq!(expected_m, actual_m);
+    }
+
+    #[test]
+    pub fn test_divide_by_single_digit_bu64() {
+        let a: Vec<u64> = vec![12385590235067398802, 6574815786672150605, 58256762939999093];
+        let b: u64 = 194632;
+        let expected_q: Vec<u64> = vec![9229596213531921335, 13031283436137603541, 299317496300];
+        let expected_r: u64 = 42778;
+
+        let (actual_q, actual_r) = divide_by_single_digit_bu64(&a, b);
+
+        assert_eq!(expected_q, actual_q);
+        assert_eq!(expected_r, actual_r);
+    }
+
+    #[test]
+    pub fn test_divide_by_multidigit_bu64() {
+        let a: Vec<u64> = vec![12385590235067398802, 6574815786672150605, 58256762939999093];
+        let b: Vec<u64> = vec![3120745040343772444, 127234219];
+        let expected_q: Vec<u64> = vec![13206933958395635798, 457870243];
+        let expected_r: Vec<u64> = vec![18066500957280318250, 30065207];
+
+        let (actual_q, actual_r) = divide_by_multidigit_bu64(&a, &b);
+
+        assert_eq!(expected_q, actual_q);
+        assert_eq!(expected_r, actual_r);
+    }
 }

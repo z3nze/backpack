@@ -1,4 +1,4 @@
-use crate::math::long_arithmetic::schoolbook::{divide_bu64, multiply_bu64};
+use crate::math::long_arithmetic::schoolbook::{divide_by_multidigit_bu64, multiply_bu64};
 
 use super::{
     schoolbook::add_signed_small_to_large_bu64,
@@ -70,7 +70,7 @@ impl Div for BigInt {
     fn div(self, rhs: Self) -> Self::Output {
         assert!(rhs.sign != Sign::ZERO, "division by zero");
 
-        let (div, _rem) = divide_bu64(&self.blocks, &rhs.blocks);
+        let (div, _rem) = divide_by_multidigit_bu64(&self.blocks, &rhs.blocks);
 
         BigInt {
             sign: resolve_mul_sign(self.sign, rhs.sign),
