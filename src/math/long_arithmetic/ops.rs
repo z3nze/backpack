@@ -10,26 +10,13 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 impl Add for BigInt {
     type Output = Self;
 
-    #[allow(clippy::suspicious_arithmetic_impl)]
     fn add(self, rhs: Self) -> Self::Output {
-        let (a, b) = if self.abs() > rhs.abs() {
-            (&self, &rhs)
-        } else {
-            (&rhs, &self)
-        };
+        let (a, b) = if self.abs() >= rhs.abs() { (&self, &rhs) } else { (&rhs, &self) };
 
-        let op_sign: Sign = if a.sign == b.sign {
-            Sign::POSITIVE
-        } else {
-            Sign::NEGATIVE
-        };
+        let op_sign: Sign = if a.sign == b.sign { Sign::POSITIVE } else { Sign::NEGATIVE };
 
         let blocks = add_signed_small_to_large_bu64(&self.blocks, &rhs.blocks, op_sign);
-        let sign = if blocks.is_empty() {
-            Sign::ZERO
-        } else {
-            a.sign
-        };
+        let sign = if blocks.is_empty() { Sign::ZERO } else { a.sign };
 
         BigInt { sign, blocks }
     }

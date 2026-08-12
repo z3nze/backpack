@@ -1,5 +1,5 @@
-use backpack::misc::diophantine_reciprocals::first_exceeding_1000;
+use backpack::misc::darts::checkout_count;
 
 fn main() {
-    println!("{}", first_exceeding_1000(1000000).unwrap());
+    println!("{}", checkout_count(99));
 }

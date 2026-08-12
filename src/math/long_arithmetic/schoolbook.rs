@@ -2,12 +2,14 @@ use crate::math::long_arithmetic::types::Sign;
 use std::cmp::Ordering;
 use std::iter::repeat;
 
+const UNSIGNED_BASE_64: u128 = 1u128 << 64;
+const SIGNED_BASE_64: i128 = 1i128 << 64;
+
 pub(super) fn add_signed_small_to_large_bu64(
     lhs: &Vec<u64>,
     rhs: &Vec<u64>,
     sign: Sign,
 ) -> Vec<u64> {
-    let base: i128 = 1i128 << 64;
     let rsign = sign as i128;
     let (n, m) = (lhs.len(), rhs.len());
     let max_len = n.max(m) + 1;
@@ -23,8 +25,8 @@ pub(super) fn add_signed_small_to_large_bu64(
         .zip(res.iter_mut())
         .for_each(|((ai, bi), ref mut block_i)| {
             let res = **block_i + ai + rsign * bi + carry;
-            carry = res.div_euclid(base);
-            **block_i = res.rem_euclid(base);
+            carry = res.div_euclid(SIGNED_BASE_64);
+            **block_i = res.rem_euclid(SIGNED_BASE_64);
         });
 
     while let Some(last) = res.last()
@@ -37,7 +39,6 @@ pub(super) fn add_signed_small_to_large_bu64(
 }
 
 pub(super) fn multiply_bu64(lhs: &Vec<u64>, rhs: &Vec<u64>) -> Vec<u64> {
-    let base: u128 = 1u128 << 64;
     let (n, m) = (lhs.len(), rhs.len());
 
     let mut blocks: Vec<u128> = vec![0; n + m + 1];
@@ -45,7 +46,7 @@ pub(super) fn multiply_bu64(lhs: &Vec<u64>, rhs: &Vec<u64>) -> Vec<u64> {
     lhs.iter().enumerate().for_each(|(i, &ai)| {
         rhs.iter().enumerate().for_each(|(j, &bj)| {
             let uv = blocks[i + j] + (ai as u128) * (bj as u128);
-            let (carry, val) = (uv / base, uv % base);
+            let (carry, val) = (uv / UNSIGNED_BASE_64, uv % UNSIGNED_BASE_64);
             blocks[i + j + 1] += carry;
             blocks[i + j] = val;
         })
@@ -56,8 +57,6 @@ pub(super) fn multiply_bu64(lhs: &Vec<u64>, rhs: &Vec<u64>) -> Vec<u64> {
     {
         blocks.pop();
     }
-
-    assert!(blocks.iter().all(|&x| x < base));
 
     blocks.iter().map(|&x| x as u64).collect::<Vec<_>>()
 }
@@ -77,7 +76,6 @@ pub(super) fn cmp(lhs: &Vec<u64>, rhs: &Vec<u64>) -> Ordering {
 }
 
 fn divide_by_single_digit_bu64(lhs: &Vec<u64>, rhs: u64) -> (Vec<u64>, u64) {
-    let base: u128 = 1u128 << 64;
     let a = lhs.iter().map(|&x| x as u128).collect::<Vec<_>>();
     let d = rhs as u128;
     let n = a.len();
@@ -86,7 +84,7 @@ fn divide_by_single_digit_bu64(lhs: &Vec<u64>, rhs: u64) -> (Vec<u64>, u64) {
     let mut carry = 0;
 
     for i in (0..n).rev() {
-        let t = carry * base + a[i];
+        let t = carry * UNSIGNED_BASE_64 + a[i];
         q[i] = (t / d) as u64;
         carry = t % d;
     }
@@ -101,12 +99,11 @@ fn divide_by_single_digit_bu64(lhs: &Vec<u64>, rhs: u64) -> (Vec<u64>, u64) {
 }
 
 pub(super) fn divide_by_multidigit_bu64(lhs: &Vec<u64>, rhs: &Vec<u64>) -> (Vec<u64>, Vec<u64>) {
-    let base: u128 = 1u128 << 64;
     let _a = lhs.iter().map(|&x| x as u128).collect::<Vec<_>>();
     let d = rhs.iter().map(|&x| x as u128).collect::<Vec<_>>();
     let (n, m) = (lhs.len(), rhs.len());
 
-    let f = base / (d[m - 1] + 1);
+    let f = UNSIGNED_BASE_64 / (d[m - 1] + 1);
 
     let a_prime = multiply_bu64(lhs, &vec![f as u64]);
     let d_prime = multiply_bu64(rhs, &vec![f as u64]);
@@ -122,7 +119,8 @@ pub(super) fn divide_by_multidigit_bu64(lhs: &Vec<u64>, rhs: &Vec<u64>) -> (Vec<
         let u_m_1 = u[m - 1] as u128;
         let d_prime_m_1 = d_prime[m - 1] as u128;
 
-        let mut q_hat = ((u_m * base + u_m_1) / d_prime_m_1).min(base - 1) as u64;
+        let mut q_hat =
+            ((u_m * UNSIGNED_BASE_64 + u_m_1) / d_prime_m_1).min(UNSIGNED_BASE_64 - 1) as u64;
         let d_msd2 = vec![d_prime[m - 2], d_prime[m - 1]];
         let u_msd3 = vec![u[m - 2], u[m - 1], u[m]];
         while cmp(&multiply_bu64(&vec![q_hat], &d_msd2), &u_msd3) == Ordering::Greater {
