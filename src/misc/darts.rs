@@ -16,7 +16,6 @@ pub fn checkout_count(n: usize) -> u64 {
         .for_each(|x| cnt[x] += 1);
 
     prod(&sectors, &sectors)
-        .iter()
         .filter_map(|(x, y)| {
             let val = x.0 * x.1 + y.0 * y.1;
             if y.1 == 2 && val <= n { Some(val) } else { None }

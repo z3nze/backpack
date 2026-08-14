@@ -80,7 +80,6 @@ impl AnagramicSquares {
             .filter(|(_, words)| words.len() >= 2)
             .map(|(gk, words)| {
                 util::prod(words, words)
-                    .iter()
                     .filter(|(w1, w2)| w1 != w2)
                     .map(|(w1, w2)| Self::aux1(gk.to_string(), w1, w2))
                     .max()

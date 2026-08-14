@@ -1,12 +1,11 @@
-pub fn prod<'a, T>(xs: &'a [T], ys: &'a [T]) -> Vec<(&'a T, &'a T)> {
-    let mut res: Vec<(&T, &T)> = Default::default();
-    res.reserve_exact(xs.len() * ys.len());
-    for x in xs {
-        for y in ys {
-            res.push((x, y));
-        }
-    }
-    res
+pub fn prod<'a, T, X, Y>(xs: &'a X, ys: &'a Y) -> impl Iterator<Item = (&'a T, &'a T)> + 'a
+where
+    T: 'a,
+    &'a X: IntoIterator<Item = &'a T>,
+    &'a Y: IntoIterator<Item = &'a T>,
+{
+    xs.into_iter()
+        .flat_map(move |x| ys.into_iter().map(move |y| (x, y)))
 }
 
 #[cfg(test)]
@@ -32,8 +31,7 @@ mod tests {
 
         assert_eq!(
             prod(&a, &b)
-                .iter()
-                .map(|(x, y)| (**x, **y))
+                .map(|(&x, &y)| (x, y))
                 .collect::<Vec<(i64, i64)>>(),
             expect
         );
